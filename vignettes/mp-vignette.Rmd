@@ -137,4 +137,4 @@ plot(model_SGL, ind1 = 10, ind2 = 1)
 plot(model_SGL_cv)
 ```
 
-This package is now uploaded to Github. Test to commit.
+This package is now uploaded to Github. 
