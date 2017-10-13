@@ -4,10 +4,12 @@
 \alias{simulated_dataset}
 \title{Simulated Dataset Generator}
 \usage{
-simulated_dataset(n)
+simulated_dataset(n, sim_seed)
 }
 \arguments{
 \item{n}{sample size}
+
+\item{sim_seed}{the seed supplied to the generation}
 }
 \value{
 A simulated dataset.

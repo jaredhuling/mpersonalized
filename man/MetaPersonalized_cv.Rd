@@ -2,7 +2,7 @@
 % Please edit documentation in R/MetaPersonalized_cv.R
 \name{MetaPersonalized_cv}
 \alias{MetaPersonalized_cv}
-\title{Meta-analysis for Personalized Medicine with Cross Validation}
+\title{Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation}
 \usage{
 MetaPersonalized_cv(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
   model = c("lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused",
@@ -37,5 +37,5 @@ sparse group lasso, group lasso or lasso(linear does not need tuning)}
 an S3 object of class "mp_cv", which contains the information of the model with the best fitted lambda. It can be supplied to the predict function.
 }
 \description{
-Meta-analysis for Personalized Medicine with Cross Validation
+Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
 }

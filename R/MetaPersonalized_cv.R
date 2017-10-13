@@ -1,4 +1,4 @@
-#' Meta-analysis for Personalized Medicine with Cross Validation
+#' Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
 #' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study k
 #' @param Ylist a list object with \eqn{k}th element denoting the response vector of study k
 #' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study k (coded as 0 or 1)
