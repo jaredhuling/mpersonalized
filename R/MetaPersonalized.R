@@ -1,4 +1,4 @@
-#' @title Meta-analysis for Personalized Medicine
+#' @title Meta-analysis/Multiple Outcomes for Personalized Medicine
 #'
 #' @details Assume the total number of studies is K. This function implements meta-analysis for personalized medicine based on the following framework:
 #' \deqn{ \min_{g_1,\dots,g_K} \sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2 + h(g_1,\dots,g_K)}

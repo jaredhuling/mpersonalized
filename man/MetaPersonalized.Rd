@@ -2,7 +2,7 @@
 % Please edit documentation in R/MetaPersonalized.R
 \name{MetaPersonalized}
 \alias{MetaPersonalized}
-\title{Meta-analysis for Personalized Medicine}
+\title{Meta-analysis/Multiple Outcomes for Personalized Medicine}
 \usage{
 MetaPersonalized(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
   model = c("linear", "lasso", "GL", "SGL", "fused", "lasso+fused",
