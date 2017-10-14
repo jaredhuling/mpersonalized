@@ -4,7 +4,7 @@ unique_rule_lasso_method = function(modelYlist, modelXlist, Ybar, Xbar, Xsd, lam
   y = unlist(modelYlist)
   total_n = length(y)
 
-  x = sqrt(2 * total_n) * x; y = sqrt(2 * total_n) * y
+  x = sqrt(total_n) * x; y = sqrt(total_n) * y
 
   lasso_model = glmnet(x = x, y = y, family = "gaussian", standardize = FALSE,
                        intercept  = FALSE, lambda = lambda)
