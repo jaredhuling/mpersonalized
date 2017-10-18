@@ -50,7 +50,7 @@ plot.mp = function(mp, ind1, ind2, unique_ind){
       geom_line(aes(color = recommend)) + ggtitle(label = paste("Study ",i))
   }
 
-  do.call(grid.arrange, c(plotlist, nrow = 2))
+  return(plotlist)
 }
 
 
@@ -80,5 +80,5 @@ plot.mp_cv = function(mp_cv){
       geom_line(aes(color = recommend)) + ggtitle(label = paste("Study ",i))
   }
 
-  do.call(grid.arrange, c(plotlist, nrow = 2))
+  return(plotlist)
 }

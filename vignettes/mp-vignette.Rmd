@@ -131,10 +131,10 @@ Last, we introduce `plot` method for `MetaPersonalize` and `MetaPersonalized_cv`
 ```{r plot, fig.width = 8, fig.height = 4}
 #to plot for output from MetaPersonalized, we need to supply the index of penalty parameter
 #10th of lambda1, 1st of lambda2
-plot(model_SGL, ind1 = 10, ind2 = 1)
+plot1 = plot(model_SGL, ind1 = 10, ind2 = 1)[[1]]
 
 #plot for output from MetaPersonalized_cv does not need supply the index
-plot(model_SGL_cv)
+plot1 = plot(model_SGL_cv)[[1]]
 ```
 
 This package is now uploaded to Github. 
