@@ -18,6 +18,7 @@
 #' \item If \eqn{\lambda_1, \lambda_2 = 0}, a linear model is fitted.
 #' }
 #'
+#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem
 #' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study k
 #' @param Ylist a list object with \eqn{k}th element denoting the response vector of study k
 #' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study k (coded as 0 or 1)
@@ -35,13 +36,32 @@
 #' to the predict function
 #' @export
 
-MetaPersonalized = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
-                            model = c("linear", "lasso", "GL", "SGL", "fused",
+MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
+                            X, Trt, P,
+                            Xlist, Ylist, Trtlist, Plist, typelist = NULL,
+                            penalty = c("linear", "lasso", "GL", "SGL", "fused",
                                       "lasso+fused", "GL+fused", "SGL+fused"),
                             lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
                             alpha = NULL, unique_rule = FALSE){
 
   model = match.arg(model)
+  problem = match.arg(problem)
+
+  if (problem == "multiple outcomes"){
+
+    if (is.null(X) | is.null(Ylist) | is.null(Trt) | is.null(P))
+      stop("For multiple outcomes, X, Ylist, Trt, P need to be supplied!")
+
+    q = length(Ylist)
+    Xlist = replicate(q, X, simplify = FALSE)
+    Trtlist = replicate(q, Trt, simplify = FALSE)
+    Plist = replicate(q, P, simplify = FALSE)
+
+  } else if (problem == "meta-analysis"){
+
+    if (is.null(Xlist) | is.null(Ylist) | is.null(Trtlist) | is.null(Plist))
+      stop("For meta-analysis, Xlist, Ylist, Trtlist, Plist need to be supplied!")
+  }
 
   q = length(Xlist)
   p = dim(Xlist[[1]])[2]
