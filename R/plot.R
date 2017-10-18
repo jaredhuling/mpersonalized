@@ -6,7 +6,7 @@
 #' @param unique_ind the index of the wanted unique_rule_lambda
 #'
 #' @import ggplot2 gridExtra
-#' @return a plot that
+#' @return a list object with \eqn{k}th element denoting the plot of study k
 #' @export
 plot.mp = function(mp, ind1, ind2, unique_ind){
 
