@@ -135,8 +135,8 @@ str(pred_orig_cv$benefit_score)
 Last, we introduce `plot` method for `mpersonalize` and `mpersonalized_cv` output. The `plot` function draws the mean value of the response based on interaction levels of recommened treatment and received treatment.
 ```{r plot, fig.width = 8, fig.height = 4}
 #to plot for output from mpersonalized, we need to supply the index of penalty parameter
-#10th of lambda1, 1st of lambda2
-plot1 = plot(model_SGL, ind1 = 10, ind2 = 1)[[1]]
+#5th of lambda1, 1st of lambda2
+plot1 = plot(model_SGL, ind1 = 5, ind2 = 1)[[1]]
 plot1
 
 #plot for output from mpersonalized_cv does not need supply the index
