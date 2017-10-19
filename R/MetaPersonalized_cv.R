@@ -1,27 +1,62 @@
-#' Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
-#' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study k
-#' @param Ylist a list object with \eqn{k}th element denoting the response vector of study k
-#' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study k (coded as 0 or 1)
-#' @param typlelist a list object with \eqn{k}th element denoting the type of response in study k, can be continuous or binary, default is continuous
-#' @param model the model to be used for the above framework, can be meta-analysis,
-#' sparse group lasso, group lasso or lasso(linear does not need tuning)
-#' @param lambda1 lambda1 in the framework above
-#' @param lambda2 lambda2 in the framework above
-#' @param alpha alpha in the framework above
-#' @param unique_rule_lambda \eqn{\lambda_{uni}} when unique treatment rule is required
+#' @title Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
+#'
+#' @details This function implments basically implements \code{mpersonalized} but use cross validatation for the tuning of penalty parameter.
+#'  The optimal penalty parameter is selected by minimizing \deqn{\sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2}
+#'  where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is separately estimated from the training set.
+#'
+#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
+#'  the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
+#'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
+#' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
+#' @param Trt the treatment vector that should be supplied when the problem is "multiple outcomes". It should be coded as 0 or 1.
+#' @param P the propensity score vector when the problem is "multiple outcomes".
+#' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study \eqn{k}. This should be supplied when the problem is
+#'  "meta-analysis".
+#' @param Ylist When the problem is "meta-analysis", \code{Ylist} should be a list object with \eqn{k}th element denoting the response vector of study \eqn{k}. When the
+#'  problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
+#' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1). This should be supplied when the problem is
+#'  "meta-analysis".
+#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
+#' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
+#'  Each element should be "continuous" or "binary".
+#' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
+#'  "lasso+fused", "GL+fused", "SGL+fused". For unique rule, the penalty could be "none" or "lasso".
+#' @param lambda1 lambda1 supplied in the framework when different rules are used.
+#' @param lambda2 lambda2 supplied in the framework when different rules are used.
+#' @param alpha alpha in the framework when different rules are used.
+#' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
 #' @param unique_rule a logical value, whether a unique treatment rule is required
 #' @param cv_folds number of folds needed for cross-validation, default is 5
 #' @import glmnet SGL caret Matrix
 #' @return an S3 object of class "mp_cv", which contains the information of the model with the best fitted lambda. It can be supplied to the predict function.
 #' @export
 
-MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
-                               model = c("lasso", "GL", "SGL", "fused",
-                                         "lasso+fused", "GL+fused", "SGL+fused"),
-                              lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
-                              alpha = NULL, unique_rule = FALSE, cv_folds = 5){
+mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
+                            X, Trt, P,
+                            Xlist, Ylist, Trtlist, Plist, typelist = NULL,
+                            penalty = c("lasso", "GL", "SGL", "fused",
+                                      "lasso+fused", "GL+fused", "SGL+fused"),
+                            lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
+                            alpha = NULL, unique_rule = FALSE, cv_folds = 5){
 
-  model = match.arg(model)
+  penalty = match.arg(penalty)
+  problem = match.arg(problem)
+
+  if (problem == "multiple outcomes"){
+
+    if (is.null(X) | is.null(Ylist) | is.null(Trt) | is.null(P))
+      stop("For multiple outcomes, X, Ylist, Trt, P need to be supplied!")
+
+    q = length(Ylist)
+    Xlist = replicate(q, X, simplify = FALSE)
+    Trtlist = replicate(q, Trt, simplify = FALSE)
+    Plist = replicate(q, P, simplify = FALSE)
+
+  } else if (problem == "meta-analysis"){
+
+    if (is.null(Xlist) | is.null(Ylist) | is.null(Trtlist) | is.null(Plist))
+      stop("For meta-analysis, Xlist, Ylist, Trtlist, Plist need to be supplied!")
+  }
 
   q = length(Xlist)
   p = dim(Xlist[[1]])[2]
@@ -46,8 +81,8 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
     Xbar = standardized_data$Xbar
     Xsd = standardized_data$Xsd
 
-    if (model != "lasso")
-      stop("When unique rule is required, the model must be lasso!(for linear model, use 'MetaPersonalized' instead.")
+    if (penalty != "lasso")
+      stop("When unique rule is required, the penalty must be lasso!(for no penalty, use 'mersonalized' instead.")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
       warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
@@ -67,92 +102,92 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
     if (!is.null(unique_rule_lambda))
       warning("When unique rule = FALSE, the value for unique_rule_lambda is ignored!")
 
-    if (model %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
+    if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
 
-      if (model != "fused"){
+      if (penalty != "fused"){
         if (is.null(lambda1) | is.null(lambda2))
-          stop("When model = lasso+fused/GL+fused/SGL+fused, both values of lambda1 and lambda2 must be supplied!")
+          stop("When penalty = lasso+fused/GL+fused/SGL+fused, both values of lambda1 and lambda2 must be supplied!")
         if (sum(lambda1 == 0) > 0 | sum(lambda2 == 0) > 0)
-          stop("When model = lasso+fused/GL+fused/SGL+fused, do not supply 0 in lambda1 and lambda2!")
+          stop("When penalty = lasso+fused/GL+fused/SGL+fused, do not supply 0 in lambda1 and lambda2!")
       }
 
-      if (model == "fused"){
+      if (penalty == "fused"){
         if (is.null(lambda2))
-          stop("When model = fused, lambda2 must be supplied!")
+          stop("When penalty = fused, lambda2 must be supplied!")
         if (sum(lambda2 == 0) > 0)
-          stop("When model = fused, do not supply 0 in lambda2!")
+          stop("When penalty = fused, do not supply 0 in lambda2!")
       }
 
-      if (model == "fused"){
+      if (penalty == "fused"){
         if (!is.null(alpha)){
-          warning("When model = fused, values of alpha is ignored!")
+          warning("When penalty = fused, values of alpha is ignored!")
           alpha = NULL
         }
 
         if (!is.null(lambda1))
           if (sum(lambda1 != 0) > 0)
-            warning("When model = fused, value of lambda1 is automatically set to be 0!")
+            warning("When penalty = fused, value of lambda1 is automatically set to be 0!")
 
         lambda1 = 0
       }
 
-      if (model == "lasso+fused"){
+      if (penalty == "lasso+fused"){
 
         if (!is.null(alpha))
           if(alpha != 1)
-            warning("When model = lasso+fused, alpha is automatically set to be 1!")
+            warning("When penalty = lasso+fused, alpha is automatically set to be 1!")
 
         alpha = 1
 
-      } else if (model == "GL+fused"){
+      } else if (penalty == "GL+fused"){
 
         if (!is.null(alpha))
           if(alpha != 0)
-            warning("When model = GL+fused, alpha is automatically set to be 0!")
+            warning("When penalty = GL+fused, alpha is automatically set to be 0!")
 
         alpha = 0
 
-      } else if (model == "SGL+fused"){
+      } else if (penalty == "SGL+fused"){
 
         if (!is.null(alpha))
           if (alpha == 0 | alpha == 1){
-            warning("When model = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
+            warning("When penalty = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           } else if (is.null(alpha)){
             alpha = 0.95
           }
       }
-    } else if (model %in% c("lasso", "GL", "SGL")){
+    } else if (penalty %in% c("lasso", "GL", "SGL")){
 
 
       if (!is.null(lambda2)){
         if (sum(lambda2 != 0) > 0){
-          warning("When model = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
+          warning("When penalty = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
           lambda2 = 0
         }
       } else lambda2 = 0
 
-      if (model == "lasso"){
+      if (penalty == "lasso"){
 
         if (!is.null(alpha))
           if (alpha != 1)
-            warning("When model = lasso, alpha is automatically set to be 1!")
+            warning("When penalty = lasso, alpha is automatically set to be 1!")
 
         alpha = 1
 
-      } else if (model == "GL"){
+      } else if (penalty == "GL"){
 
         if (!is.null(alpha))
           if (alpha != 0)
-            warning("When model = GL, alpha is automatically set to be 0!")
+            warning("When penalty = GL, alpha is automatically set to be 0!")
 
         alpha = 0
 
-      } else if (model == "SGL"){
+      } else if (penalty == "SGL"){
 
         if (!is.null(alpha)){
           if (alpha == 0 | alpha == 1){
-            warning("When model = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
+            warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           }
         } else {
@@ -176,9 +211,9 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
   if (unique_rule == TRUE){
     tune_cost = numeric(length(unique_rule_lambda))
   } else {
-    if (model %in% c("lasso", "GL", "SGL")){
+    if (penalty %in% c("lasso", "GL", "SGL")){
       tune_cost = numeric(length(lambda1))
-    } else if (model %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
+    } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
       tune_cost = matrix(0, nrow = length(lambda1), ncol = length(lambda2))
     }
   }
@@ -238,7 +273,7 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
       cv_Xbarlist = cv_standardized_data$Xbarlist
       cv_Xsdlist = cv_standardized_data$Xsdlist
 
-      if (model %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
+      if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
 
         cv_model = meta_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
                                Ybarlist = cv_Ybarlist, Xbarlist = cv_Xbarlist, Xsdlist = cv_Xsdlist,
@@ -253,7 +288,7 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
                                                                               intercept = as.list(cv_interceptlist[[(ind1 - 1) * length(lambda2) + ind2]]),
                                                                               beta = split(cv_betalist[[(ind1 - 1) * length(lambda2) + ind2]], row(cv_betalist[[(ind1 - 1) * length(lambda2) + ind2]])), SIMPLIFY = FALSE)))
 
-      } else if (model %in% c("lasso", "SGL", "GL")) {
+      } else if (penalty %in% c("lasso", "SGL", "GL")) {
 
         cv_model = sparse_group_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
                                              Ybarlist = cv_Ybarlist, Xbarlist = cv_Xbarlist, Xsdlist = cv_Xsdlist,
@@ -285,7 +320,7 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
     opt_ind = which.min(tune_cost)
     model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
                       unique_lambda = full_model$lambda,
-                      opt_unique_lambda = unique_rule_lambda[opt_ind], model = "lasso", unique_rule = TRUE,
+                      opt_unique_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
                       number_covariates = p, number_studies = q,
                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
@@ -295,7 +330,7 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
     Xbarlist = standardized_data$Xbarlist
     Xsdlist = standardized_data$Xsdlist
 
-    if (model %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
+    if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
 
       opt_ind = which(tune_cost == min(tune_cost), arr.ind = TRUE)
       opt_ind1 = opt_ind[1]; opt_ind2 = opt_ind[2]
@@ -307,11 +342,11 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
                         iters = full_model$iterslist[[1]],
                         lambda1 = lambda1, lambda2 = lambda2,
                         opt_lambda = list(opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2]),
-                        alpha = alpha, model = model, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
-    } else if (model %in% c("lasso", "SGL", "GL")){
+    } else if (penalty %in% c("lasso", "SGL", "GL")){
 
       full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                              Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
@@ -321,7 +356,7 @@ MetaPersonalized_cv = function(Xlist, Ylist, Trtlist, Plist, typelist = NULL,
       model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
                         lambda1 = full_model$lambda, lambda2 = 0,
                         opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
-                        alpha = alpha, model = model, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
