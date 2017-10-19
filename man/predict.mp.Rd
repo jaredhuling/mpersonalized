@@ -2,20 +2,21 @@
 % Please edit documentation in R/predict.R
 \name{predict.mp}
 \alias{predict.mp}
-\title{Predict Function for "mp" object}
+\title{Predict for "mp" object}
 \usage{
 \method{predict}{mp}(mp, newx = NULL, weight = NULL, overall_rec = TRUE)
 }
 \arguments{
-\item{mp}{the fitted "mp" object}
+\item{mp}{the fitted "mp" object returned by "mpersonalized"}
 
-\item{newx}{the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study.}
+\item{newx}{the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study/outcome.}
 
 \item{weight}{a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.}
 
 \item{overall_rec}{a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.}
 }
 \value{
+a list of results with each element in the list corresponding to the prediciton by using each penalty parameter. Each element in this list contains:
 \item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
 If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
 \item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
