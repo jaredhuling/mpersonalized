@@ -26,25 +26,27 @@ Plist = list(0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 The main functions in this package are `MetaPersonalized`and `MetaPersonalized_cv`, where the second is the cross validation version of the first one. The first function will estimate a model for each given penalty parameter while the second will select the optimal one based on cross validation. 
 
 `MetaPersonalized` function is based on the below framework:
-$$\min_{g_1,\dots,g_K} \sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2 + h(g_1,\dots,g_K)$$
+$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2 + h(g_1,\dots,g_K)$$
 Here the regularization function $h$ is of the form of a sum of sparse group lasso and fused lasso penalty
 $$h = (1-\alpha)\lambda_1\sqrt{q} \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_2+\alpha \lambda_1  \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_1+ \lambda_2 \sum_{j=1}^p \sum_{1\le a < b \le K}|\beta_{ja}-\beta_{jb}|$$
 where $\boldsymbol{\beta_j}=(\beta_{j1},\dots,\beta_{jK})$.
 
 When $\lambda_2 = 0$, the model is implemented through `SGL' package, and when $\lambda_2 \ne 0$, the model is implemented through ADMM algorithm.
 
-The function `MetaPersonalized` offers the following 8 models for separate rules of different studies. They are: "linear", "lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused" and "SGL+fused". `MetaPersonalized` also offers 2 models if we want a unique rule: "linear" and "lasso". The function `MetaPersonalized` does not include the "linear" model for both unique rule and separate rule setting.
+The function `mpersonalized` offers the following 8 models for separate rules of different studies. They are: "linear", "lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused" and "SGL+fused". `mpersonalized` also offers 2 models if we want a unique rule: "linear" and "lasso". The function `mpersonalized` does not include the "linear" model for both unique rule and separate rule setting.
 
 User should specify a model first and then provide penalty parameter if needed. When fused lasso is included is in the model, user need to specify a sequence $\lambda2$ and $\lambda1$ as well if lasso/GL/SGL is also inclueded. (this will be improved in the future by a computation of default penalty sequence).
 
 Based on the model user selected, the function will warning or stop the running if the necessary penalty parameter is not supplied or unnecessary penalty parameter is supplied.
 ```{r test, warning = TRUE, error = TRUE}
-model_SGL = MetaPersonalized(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                             Plist = Plist, model = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
+model_SGL = mpersonalized(problem = "meta-analysis",
+                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                             Plist = Plist, penalty = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
                              unique_rule = FALSE)
-model_SGL_fused = MetaPersonalized(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                             Plist = Plist, model = "SGL+fused", lambda2 = seq(0.01, 0.1, 0.01), 
-                             unique_rule = FALSE)
+model_SGL_fused = mpersonalized(problem = "meta-analysis",
+                                Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                Plist = Plist, penalty = "SGL+fused", lambda2 = seq(0.01, 0.1, 0.01), 
+                                unique_rule = FALSE)
 ```
 
 The model_SGL can still be run but the warning message is good for better usage of the function next time.
@@ -62,18 +64,20 @@ print(beta)
 print(intercept)
 ```
 
-We could also use cross validation to automatically choose the best tuning parameter. Similarly, `MetaPersonalized_cv` will report an error if the input of penalty parameter does not follow requirements.
+We could also use cross validation to automatically choose the best tuning parameter. Similarly, `mpersonalized_cv` will report an error if the input of penalty parameter does not follow requirements.
 
 ```{r cv method, error = TRUE, warning = TRUE}
-model_SGL_cv = MetaPersonalized_cv(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                             Plist = Plist, model = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
-                             unique_rule = FALSE)
-model_SGL_fused_cv = MetaPersonalized_cv(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                             Plist = Plist, model = "SGL+fused", lambda2 = seq(0.01, 0.1, 0.01), 
-                             unique_rule = FALSE)
+model_SGL_cv = mpersonalized_cv(problem = "meta-analysis",
+                                Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                Plist = Plist, penalty = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
+                                unique_rule = FALSE)
+model_SGL_fused_cv = mpersonalized_cv(problem = "meta-analysis",
+                                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                      Plist = Plist, penalty = "SGL+fused", lambda2 = seq(0.01, 0.1, 0.01), 
+                                      unique_rule = FALSE)
 ```
 
-Different from `MetaPersonalized`, the output from `MetaPersonalzied_cv` only has the optimal beta and intercept.
+Different from `mpersonalized`, the output from `mpersonalzied_cv` only has the optimal beta and intercept.
 ```{r cv result}
 model_SGL_cv$lambda1
 model_SGL_cv$lambda2
@@ -87,9 +91,10 @@ model_SGL_cv$intercept
 
 Besides, we could also try fit a single rule for all the studies.
 ```{r unique}
-model_unique_lasso_cv = MetaPersonalized_cv(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                                            Plist = Plist, model = "lasso", 
-                                            unique_rule = TRUE)
+model_unique_lasso_cv = mpersonalized_cv(problem = "meta-analysis",
+                                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                         Plist = Plist, penalty = "lasso", 
+                                         unique_rule = TRUE)
 
 model_unique_lasso_cv$unique_lambda
 model_unique_lasso_cv$opt_unique_lambda
@@ -98,7 +103,7 @@ model_unique_lasso_cv$beta
 model_unique_lasso_cv$intercept
 ```
 
-We could use `predict` function to predict the optimal treatment for new patients. We first generate some new patients. We could specify an overall weighted recommendation rule. The default weight is equal weight for each response/study. For object returned from `MetaPersonalized`  function, `predict` predicts the benefit score and treatment for each penalty parameter. If we does not supply `newx`, then `predict` predicts for the original data for each study based on its own rule.
+We could use `predict` function to predict the optimal treatment for new patients. We first generate some new patients. We could specify an overall weighted recommendation rule. The default weight is equal weight for each response/study. For object returned from `mpersonalized`  function, `predict` predicts the benefit score and treatment for each penalty parameter. If we does not supply `newx`, then `predict` predicts for the original data for each study based on its own rule.
 ```{r new patients}
 p = model_SGL$number_covariates
 newx = matrix(rnorm(5 * p), nrow = 5, ncol = p)
@@ -115,7 +120,7 @@ str(pred_orig$treatment[[10]])
 str(pred_orig$benefit_score[[10]])
 ```
 
-Similarly, `MetaPersonalized_cv` gives prediction for the optimal beta and intercept.
+Similarly, `mpersonalized_cv` gives prediction for the optimal beta and intercept.
 ```{r new patients cv}
 pred_cv = predict(model_SGL_cv, newx = newx, overall_rec = TRUE)
 pred_cv$treatment
@@ -127,14 +132,14 @@ str(pred_orig_cv$treatment)
 str(pred_orig_cv$benefit_score)
 ```
 
-Last, we introduce `plot` method for `MetaPersonalize` and `MetaPersonalized_cv` output. The `plot` function draws the mean value of the response based on interaction levels of recommened treatment and received treatment.
+Last, we introduce `plot` method for `mpersonalize` and `mpersonalized_cv` output. The `plot` function draws the mean value of the response based on interaction levels of recommened treatment and received treatment.
 ```{r plot, fig.width = 8, fig.height = 4}
-#to plot for output from MetaPersonalized, we need to supply the index of penalty parameter
+#to plot for output from mpersonalized, we need to supply the index of penalty parameter
 #10th of lambda1, 1st of lambda2
 plot1 = plot(model_SGL, ind1 = 10, ind2 = 1)[[1]]
 plot1
 
-#plot for output from MetaPersonalized_cv does not need supply the index
+#plot for output from mpersonalized_cv does not need supply the index
 plot1 = plot(model_SGL_cv)[[1]]
 plot1
 ```
