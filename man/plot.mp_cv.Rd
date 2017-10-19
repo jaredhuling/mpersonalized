@@ -2,10 +2,17 @@
 % Please edit documentation in R/plot.R
 \name{plot.mp_cv}
 \alias{plot.mp_cv}
-\title{Plot for a 'mp_cv' Class Object}
+\title{Plot for a 'mp' Class Object.}
 \usage{
 \method{plot}{mp_cv}(mp_cv)
 }
 \arguments{
-\item{mp_cv}{the 'mp_cv' class object returned by MetaPersonalzied function}
+\item{mp_cv}{the 'mp_cv' class object returned by \code{mpersonalzied_cv} function}
+}
+\value{
+a list object with \eqn{k}th element denoting the plot of study k
+}
+\details{
+This function plots the results for estimated treatment effects by using the estimated optimal
+treatment recommendation rule obtained from corss validation.
 }

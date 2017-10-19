@@ -2,19 +2,25 @@
 % Please edit documentation in R/plot.R
 \name{plot.mp}
 \alias{plot.mp}
-\title{Plot for a 'mp' Class Object}
+\title{Plot for a 'mp' Class Object.}
 \usage{
 \method{plot}{mp}(mp, ind1, ind2, unique_ind)
 }
 \arguments{
-\item{mp}{the 'mp' class object returned by MetaPersonalzied function}
+\item{mp}{the 'mp' class object returned by \code{mpersonalzied} function}
 
-\item{ind1}{the index of the wanted lambda1}
+\item{ind1}{the index of the lambda1 if different rules are used}
 
-\item{ind2}{the index of the wanted lambda2}
+\item{ind2}{the index of the lambda2 if different rules are used}
 
-\item{unique_ind}{the index of the wanted unique_rule_lambda}
+\item{unique_ind}{the index of the unique_rule_lambda if an unique rule is used}
 }
 \value{
 a list object with \eqn{k}th element denoting the plot of study k
+}
+\details{
+This function plots the results for estimated treatment effects. Depending on the received
+treatment and recommended treatment, the group means of the outcome are computed and the relations between them are plotted.
+This plot provides a sanity check of the treatment recommendation rule. By specifiying the index of the penalty parameters, we can
+obtain the plots of the corresponding treatment recommendation rule.
 }

@@ -1,9 +1,14 @@
-#' @title Plot for a 'mp' Class Object
+#' @title Plot for a 'mp' Class Object.
 #'
-#' @param mp the 'mp' class object returned by MetaPersonalzied function
-#' @param ind1 the index of the wanted lambda1
-#' @param ind2 the index of the wanted lambda2
-#' @param unique_ind the index of the wanted unique_rule_lambda
+#' @details This function plots the results for estimated treatment effects. Depending on the received
+#' treatment and recommended treatment, the group means of the outcome are computed and the relations between them are plotted.
+#' This plot provides a sanity check of the treatment recommendation rule. By specifiying the index of the penalty parameters, we can
+#' obtain the plots of the corresponding treatment recommendation rule.
+#'
+#' @param mp the 'mp' class object returned by \code{mpersonalzied} function
+#' @param ind1 the index of the lambda1 if different rules are used
+#' @param ind2 the index of the lambda2 if different rules are used
+#' @param unique_ind the index of the unique_rule_lambda if an unique rule is used
 #'
 #' @import ggplot2 gridExtra
 #' @return a list object with \eqn{k}th element denoting the plot of study k
@@ -54,9 +59,15 @@ plot.mp = function(mp, ind1, ind2, unique_ind){
 }
 
 
-#' @title Plot for a 'mp_cv' Class Object
+#' @title Plot for a 'mp' Class Object.
 #'
-#' @param mp_cv the 'mp_cv' class object returned by MetaPersonalzied function
+#' @details This function plots the results for estimated treatment effects by using the estimated optimal
+#' treatment recommendation rule obtained from corss validation.
+#'
+#' @param mp_cv the 'mp_cv' class object returned by \code{mpersonalzied_cv} function
+#'
+#' @import ggplot2 gridExtra
+#' @return a list object with \eqn{k}th element denoting the plot of study k
 #' @export
 plot.mp_cv = function(mp_cv){
 
