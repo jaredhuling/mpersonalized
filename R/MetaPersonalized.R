@@ -1,34 +1,53 @@
 #' @title Meta-analysis/Multiple Outcomes for Personalized Medicine
 #'
-#' @details Assume the total number of studies is K. This function implements meta-analysis for personalized medicine based on the following framework:
+#' @details Assume the total number of studies is \eqn{K}. This function is aimed to solve meta-analysis/multiple outcomes problems for personalized medicine based on the following framework:
 #' \deqn{ \min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2 + h(g_1,\dots,g_K)}
 #' Here the regularization function \eqn{h} is of the form of a sum of sparse group lasso and fused lasso penalty
 #' \deqn{h = (1-\alpha)\lambda_1\sqrt{q} \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_2+\alpha \lambda_1  \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_1+ \lambda_2 \sum_{j=1}^p \sum_{1\le a < b \le K}|\beta_{ja}-\beta_{jb}|}
 #' where \eqn{\boldsymbol{\beta_j}=(\beta_{j1},\dots,\beta_{jK})}
 #'
-#' If we would like a unique rule to be obtained, we should let \eqn{g_1 = \dots= g_K} and
-#' \deqn{h = \lambda_{uni} \|\beta\|_1}
+#' If we would like a unique rule to be obtained, we let \eqn{g_1 = \dots= g_K} and solve the following question instead
+#' \deqn{\min_{g} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g(X_{i})\bigr]^2 + h(g_1,\dots,g_K) + \lambda_{uni} \|\beta\|_1}
 #'
-#' By setting \eqn{\lambda_1, \lambda_2, \alpha} differently, different models could be obtained.
+#' If we want different rules, by setting \eqn{\lambda_1, \lambda_2, \alpha} differently, different penalties can be obtained.
 #' \itemize{
-#' \item If \eqn{\lambda_1,\lambda2 \ne 0} and \eqn{alpha \ne 0} or \eqn{1}, it is sparse group lasso + fused model.
-#' \item If \eqn{\lambda_2 = 0} and \eqn{\alpha \ne 0} or \eqn{1}, a sparse group lasso model is fitted.
-#' \item If \eqn{\lambda_2 = 0} and \eqn{\alpha = 0}, a group lasso model is fitted.
-#' \item If \eqn{\lambda_2 = 0} and \eqn{\alpha = 1}, a lasso model is fitted.
-#' \item If \eqn{\lambda_1, \lambda_2 = 0}, a linear model is fitted.
+#' \item If \eqn{\lambda_1, \lambda_2 \ne 0} and \eqn{\alpha \ne 0} or \eqn{1}, the penalty is "SGL+fused".
+#' \item If \eqn{\lambda_1, \lambda_2 \ne 0} and \eqn{\alpha = 0}, the penalty is "GL+fused".
+#' \item If \eqn{\lambda_1, \lambda_2 \ne 0} and \eqn{\alpha = 1}, the penalty is "lasso+fused".
+#' \item If \eqn{\lambda_1 = 0, \lambda_2 \ne 0}, the penalty is "fused".
+#' \item If \eqn{\lambda_1 \ne0, \lambda_2 = 0} and \eqn{\alpha \ne 0} or \eqn{1}, the penalty is "SGL".
+#' \item If \eqn{\lambda_1 \ne0, \lambda_2 = 0} and \eqn{\alpha = 0}, the penalty is "GL".
+#' \item If \eqn{\lambda_1 \ne0, \lambda_2 = 0} and \eqn{\alpha = 1}, the penalty is "lasso".
+#' \item If \eqn{\lambda_1, \lambda_2 = 0}, there is no penalty.
 #' }
 #'
-#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem
-#' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study k
-#' @param Ylist a list object with \eqn{k}th element denoting the response vector of study k
-#' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study k (coded as 0 or 1)
-#' @param typlelist a list object with \eqn{k}th element denoting the type of response in study k, can be continuous or binary, default is continuous
-#' @param model the model to be used for the above framework, can be linear, meta-analysis,
-#' sparse group lasso, group lasso or lasso
-#' @param lambda1 lambda1 in the framework above
-#' @param lambda2 lambda2 in the framework above
-#' @param alpha alpha in the framework above
-#' @param unique_rule_lambda \eqn{\lambda_{uni}} when unique treatment rule is required
+#' If we want unique rule,
+#' \itemize{
+#' \item If \eqn{\lambda \ne 0}, the penalty is "lasso".
+#' \item If \eqn{\lambda = 0}, there is no penalty.
+#' }
+#'
+#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
+#'  the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
+#'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
+#' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
+#' @param Trt the treatment vector that should be supplied when the problem is "multiple outcomes". It should be coded as 0 or 1.
+#' @param P the propensity score vector when the problem is "multiple outcomes".
+#' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study \eqn{k}. This should be supplied when the problem is
+#'  "meta-analysis".
+#' @param Ylist When the problem is "meta-analysis", \code{Ylist} should be a list object with \eqn{k}th element denoting the response vector of study \eqn{k}. When the
+#'  problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
+#' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1). This should be supplied when the problem is
+#'  "meta-analysis".
+#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
+#' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
+#'  Each element should be "continuous" or "binary".
+#' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
+#'  "lasso+fused", "GL+fused", "SGL+fused". For unique rule, the penalty could be "none" or "lasso".
+#' @param lambda1 lambda1 supplied in the framework when different rules are used.
+#' @param lambda2 lambda2 supplied in the framework when different rules are used.
+#' @param alpha alpha in the framework when different rules are used.
+#' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
 #' @param unique_rule a logical value, whether a unique treatment rule is required
 #' @import glmnet SGL Matrix
 #'
@@ -36,15 +55,15 @@
 #' to the predict function
 #' @export
 
-MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
-                            X, Trt, P,
-                            Xlist, Ylist, Trtlist, Plist, typelist = NULL,
-                            penalty = c("linear", "lasso", "GL", "SGL", "fused",
-                                      "lasso+fused", "GL+fused", "SGL+fused"),
-                            lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
-                            alpha = NULL, unique_rule = FALSE){
+mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
+                         X, Trt, P,
+                         Xlist, Ylist, Trtlist, Plist, typelist = NULL,
+                         penalty = c("none", "lasso", "GL", "SGL", "fused",
+                                     "lasso+fused", "GL+fused", "SGL+fused"),
+                         lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
+                         alpha = NULL, unique_rule = FALSE){
 
-  model = match.arg(model)
+  penalty = match.arg(penalty)
   problem = match.arg(problem)
 
   if (problem == "multiple outcomes"){
@@ -85,32 +104,32 @@ MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     Xbar = standardized_data$Xbar
     Xsd = standardized_data$Xsd
 
-    if (model != "lasso" & model != "linear")
-      stop("When unique rule = TRUE, the model must be lasso or linear with default as linear!")
+    if (penalty != "lasso" & penalty != "none")
+      stop("When unique rule = TRUE, the penalty must be lasso or none with default as none!")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
       warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
 
-    if (model == "lasso"){
+    if (penalty == "lasso"){
 
       full_model = unique_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                             Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = unique_rule_lambda)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         lambda = full_model$lambda,
-                        model = model, unique_rule = TRUE,
+                        penalty = penalty, unique_rule = TRUE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
-    } else if (model == "linear"){
+    } else if (penalty == "none"){
 
       if (!is.null(unique_rule_lambda))
-        warning("When unique rule = TRUE and model = linear, the value for unique_rule_lambda are ignored!")
+        warning("When unique rule = TRUE and penalty = none, the value for unique_rule_lambda are ignored!")
 
       full_model = unique_rule_linear_method(Conlist = Conlist, Xlist = Xlist)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
-                        model = model, unique_rule = TRUE,
+                        penalty = penalty, unique_rule = TRUE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
     }
@@ -124,68 +143,68 @@ MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     if (!is.null(unique_rule_lambda))
         warning("When unique rule = FALSE, the value for unique_rule_lambda is ignored!")
 
-    if (model == "linear"){
+    if (penalty == "none"){
 
       if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
-        warning("When model = linear, the value for lambda1, lambda2, alpha are ignored!")
+        warning("When penalty = none, the value for lambda1, lambda2, alpha are ignored!")
 
       full_model = linear_method(Conlist = Conlist, Xlist = Xlist)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
-                        model = model, unique_rule = FALSE,
+                        penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
-    } else if (model %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
+    } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
 
-      if (model != "fused"){
+      if (penalty != "fused"){
         if (is.null(lambda1) | is.null(lambda2))
-          stop("When model = lasso+fused/GL+fused/SGL+fused, both values of lambda1 and lambda2 must be supplied!")
+          stop("When penalty = lasso+fused/GL+fused/SGL+fused, both values of lambda1 and lambda2 must be supplied!")
         if (sum(lambda1 == 0) > 0 | sum(lambda2 == 0) > 0)
-          stop("When model = lasso+fused/GL+fused/SGL+fused, do not supply 0 in lambda1 and lambda2!")
+          stop("When penalty = lasso+fused/GL+fused/SGL+fused, do not supply 0 in lambda1 and lambda2!")
       }
 
-      if (model == "fused"){
+      if (penalty == "fused"){
         if (is.null(lambda2))
-          stop("When model = fused, lambda2 must be supplied!")
+          stop("When penalty = fused, lambda2 must be supplied!")
         if (sum(lambda2 == 0) > 0)
-          stop("When model = fused, do not supply 0 in lambda2!")
+          stop("When penalty = fused, do not supply 0 in lambda2!")
       }
 
-      if (model == "fused"){
+      if (penalty == "fused"){
         if (!is.null(alpha)){
-          warning("When model = fused, values of alpha is ignored!")
+          warning("When penalty = fused, values of alpha is ignored!")
           alpha = NULL
         }
 
         if (!is.null(lambda1))
           if (sum(lambda1 != 0) > 0)
-            warning("When model = fused, value of lambda1 is automatically set to be 0!")
+            warning("When penalty = fused, value of lambda1 is automatically set to be 0!")
 
         lambda1 = 0
       }
 
-      if (model == "lasso+fused"){
+      if (penalty == "lasso+fused"){
 
         if (!is.null(alpha))
           if(alpha != 1)
-            warning("When model = lasso+fused, alpha is automatically set to be 1!")
+            warning("When penalty = lasso+fused, alpha is automatically set to be 1!")
 
         alpha = 1
 
-      } else if (model == "GL+fused"){
+      } else if (penalty == "GL+fused"){
 
         if (!is.null(alpha))
           if(alpha != 0)
-            warning("When model = GL+fused, alpha is automatically set to be 0!")
+            warning("When penalty = GL+fused, alpha is automatically set to be 0!")
 
         alpha = 0
 
-      } else if (model == "SGL+fused"){
+      } else if (penalty == "SGL+fused"){
 
         if (!is.null(alpha))
           if (alpha == 0 | alpha == 1){
-            warning("When model = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
+            warning("When penalty = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
         } else if (is.null(alpha)){
           alpha = 0.95
@@ -200,40 +219,40 @@ MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         iterslist = full_model$iterslist,
                         lambda1 = lambda1, lambda2 = lambda2,
-                        alpha = alpha, model= model, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
-    } else if (model %in% c("lasso", "GL", "SGL")){
+    } else if (penalty %in% c("lasso", "GL", "SGL")){
 
       if (!is.null(lambda2)){
         if (sum(lambda2 != 0) > 0){
-          warning("When model = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
+          warning("When penalty = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
           lambda2 = 0
         }
       } else lambda2 = 0
 
-      if (model == "lasso"){
+      if (penalty == "lasso"){
 
         if (!is.null(alpha))
           if (alpha != 1)
-            warning("When model = lasso, alpha is automatically set to be 1!")
+            warning("When penalty = lasso, alpha is automatically set to be 1!")
 
         alpha = 1
 
-      } else if (model == "GL"){
+      } else if (penalty == "GL"){
 
         if (!is.null(alpha))
           if (alpha != 0)
-            warning("When model = GL, alpha is automatically set to be 0!")
+            warning("When penalty = GL, alpha is automatically set to be 0!")
 
         alpha = 0
 
-      } else if (model == "SGL"){
+      } else if (penalty == "SGL"){
 
         if (!is.null(alpha)){
           if (alpha == 0 | alpha == 1){
-            warning("When model = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
+            warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           }
         } else {
@@ -248,7 +267,7 @@ MetaPersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         lambda1 = full_model$lambda, lambda2 = lambda2,
-                        alpha = alpha, model = model, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
     }
