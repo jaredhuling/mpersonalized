@@ -16,5 +16,5 @@
 \item{unique_ind}{the index of the wanted unique_rule_lambda}
 }
 \value{
-a plot that
+a list object with \eqn{k}th element denoting the plot of study k
 }
