@@ -14,7 +14,7 @@ plot.mp = function(mp, ind1, ind2, unique_ind){
   Trtlist = mp$Trtlist
   unique_rule = mp$unique_rule
   q = mp$number_studies
-  model = mp$model
+  penalty = mp$penalty
 
   if (unique_rule == TRUE){
 
@@ -22,7 +22,7 @@ plot.mp = function(mp, ind1, ind2, unique_ind){
 
   } else {
 
-    if (model == "linear"){
+    if (penalty == "linear"){
 
       pred = predict(mp)$treatment[[1]]
 
