@@ -11,7 +11,7 @@ vignette: >
 
 First, load the package.
 ```{r load}
-library(MetaPersonalized)
+library(mpersonalized)
 ```
 
 There is a function built up for the test of the package. We use it to generate some data first. We can supply a seed to the function so it can reproduce simulated data set.
