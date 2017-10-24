@@ -144,4 +144,4 @@ plot1 = plot(model_SGL_cv)[[1]]
 plot1
 ```
 
-This package is now uploaded to Github. 
+This package is now uploaded to Github. Test after the rename of the repository.
