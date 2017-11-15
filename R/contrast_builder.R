@@ -4,6 +4,10 @@ contrast_builder = function(X, Y, ori_Trt, P, response_model = c("linear", "lass
   type = match.arg(type)
   response_model = match.arg(response_model)
 
+  #default estimate of propensity score
+  if (is.null(P))
+    P = sum(ori_Trt) / length(ori_Trt)
+
   Trt = 2 * (ori_Trt - 0.5)
   n = dim(X)[1]; p = dim(X)[2]
   IntX = sweep(X, 1, Trt, '*')

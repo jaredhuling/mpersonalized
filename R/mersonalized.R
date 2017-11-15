@@ -56,8 +56,9 @@
 #' @export
 
 mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
-                         X, Trt, P,
-                         Xlist, Ylist, Trtlist, Plist, typelist = NULL,
+                         X, Trt, P = NULL,
+                         Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL, simplify = FALSE),
+                         typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
                          penalty = c("none", "lasso", "GL", "SGL", "fused",
                                      "lasso+fused", "GL+fused", "SGL+fused"),
                          lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
@@ -68,8 +69,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
   if (problem == "multiple outcomes"){
 
-    if (is.null(X) | is.null(Ylist) | is.null(Trt) | is.null(P))
-      stop("For multiple outcomes, X, Ylist, Trt, P need to be supplied!")
+    if (missing(X) | missing(Ylist) | missing(Trt))
+      stop("For multiple outcomes, X, Ylist, Trt need to be supplied!")
 
     q = length(Ylist)
     Xlist = replicate(q, X, simplify = FALSE)
@@ -78,15 +79,13 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
   } else if (problem == "meta-analysis"){
 
-    if (is.null(Xlist) | is.null(Ylist) | is.null(Trtlist) | is.null(Plist))
-      stop("For meta-analysis, Xlist, Ylist, Trtlist, Plist need to be supplied!")
+    if (missing(Xlist) | missing(Ylist) | missing(Trtlist))
+      stop("For meta-analysis, Xlist, Ylist, Trtlist need to be supplied!")
+
   }
 
   q = length(Xlist)
   p = dim(Xlist[[1]])[2]
-
-  if(is.null(typelist))
-    typelist = replicate(q, list("continuous"))
 
   #construct contrast for the data
   Conlist = mapply(contrast_builder, X = Xlist, Y = Ylist,
