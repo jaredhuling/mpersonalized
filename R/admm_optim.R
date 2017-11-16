@@ -30,7 +30,8 @@ soft.thresh.vector <- function(a, kappa) {
 #' @title ADMM Algorithm for Meta-analysis/Multiple Outcomes Personalized Medicine
 #'
 #' @import Matrix
-admm_optim = function(x, y, p, q, lambda1, lambda2, lambda3, rho, abs.tol = 1e-5, rel.tol = 1e-5, maxit = 500L){
+admm_optim = function(x, y, p, q, lambda1, lambda2, lambda3,
+                      abs.tol = 1e-5, rel.tol = 1e-5, maxit = 500L, rho = NULL){
 
   blockD = genlassoD(lambda2 = lambda2, lambda3 = lambda3, q = q)#generalized lasso matrix D
   ngencon = nrow(blockD)#number of rows of generalized lasso constraint
@@ -49,6 +50,13 @@ admm_optim = function(x, y, p, q, lambda1, lambda2, lambda3, rho, abs.tol = 1e-5
     xtx <- crossprod(x); xty <- crossprod(x, y)
     AtA <- crossprod(A); AtB <- crossprod(A, B)
     iters <- maxit
+
+    if (is.null(rho)){
+
+      eigs = eigen(xtx, symmetric=TRUE, only.values=TRUE)
+      rho <- sqrt(eigs$values[1] * eigs$values[p * q])
+
+    }
 
     beta <- numeric(p * q)
     gamma<- numeric(ngencon * p)

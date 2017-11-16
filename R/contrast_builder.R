@@ -1,3 +1,5 @@
+#' @export
+
 contrast_builder = function(X, Y, ori_Trt, P, response_model = c("linear", "lasso"),
                             type = c("continuous", "binary")){
 

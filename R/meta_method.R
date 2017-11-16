@@ -1,4 +1,4 @@
-meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda1, lambda2, alpha){
+meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda1, lambda2, alpha, admm_control){
 
   q = length(modelXlist)
   p = dim(modelXlist[[1]])[2]
@@ -31,8 +31,8 @@ meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lamb
       pen2 = admm_lambda2[ind1]
       pen3 = admm_lambda3[ind2]
 
-      result = admm_optim(x = x, y = y, p = p, q = q, lambda1 = pen1,lambda2 = pen2, lambda3 = pen3,
-                         abs.tol = 1e-5, rel.tol = 1e-5, maxit = 5000L, rho = 10)
+      result = do.call(admm_optim, c(admm_control, list(x = x, y = y, p = p, q = q,
+                                                        lambda1 = pen1,lambda2 = pen2, lambda3 = pen3)))
 
       beta = matrix(result$beta, nrow = q, ncol = p, byrow = FALSE)
       intercept = unlist(Ybarlist) - apply(beta * matrix(unlist(Xbarlist), nrow = q, ncol = p, byrow = TRUE), 1, sum)

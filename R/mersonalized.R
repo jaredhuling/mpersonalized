@@ -62,7 +62,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                          penalty = c("none", "lasso", "GL", "SGL", "fused",
                                      "lasso+fused", "GL+fused", "SGL+fused"),
                          lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
-                         alpha = NULL, unique_rule = FALSE){
+                         alpha = NULL, unique_rule = FALSE,
+                         admm_control = NULL){
 
   penalty = match.arg(penalty)
   problem = match.arg(problem)
@@ -213,7 +214,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       full_model = meta_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
-                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha)
+                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha, admm_control = admm_control)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         iterslist = full_model$iterslist,

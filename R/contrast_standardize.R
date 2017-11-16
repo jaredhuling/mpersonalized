@@ -1,3 +1,5 @@
+#' @export
+
 contrast_standardize = function(Conlist, Xlist, unique_rule){
   if (unique_rule == FALSE){
     sConlist = lapply(Conlist, function(y) as.numeric(y > 0))

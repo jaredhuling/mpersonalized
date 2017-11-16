@@ -38,7 +38,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             penalty = c("lasso", "GL", "SGL", "fused",
                                       "lasso+fused", "GL+fused", "SGL+fused"),
                             lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
-                            alpha = NULL, unique_rule = FALSE, cv_folds = 5){
+                            alpha = NULL, unique_rule = FALSE, cv_folds = 5,
+                            admm_control = NULL){
 
   penalty = match.arg(penalty)
   problem = match.arg(problem)
@@ -276,7 +277,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
         cv_model = meta_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
                                Ybarlist = cv_Ybarlist, Xbarlist = cv_Xbarlist, Xsdlist = cv_Xsdlist,
-                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha)
+                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha, admm_control = admm_control)
         cv_interceptlist = cv_model$interceptlist
         cv_betalist = cv_model$betalist
 
@@ -335,7 +336,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       opt_ind1 = opt_ind[1]; opt_ind2 = opt_ind[2]
       full_model = meta_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
-                               lambda1 = lambda1[opt_ind1], lambda2 = lambda2[opt_ind2], alpha = alpha)
+                               lambda1 = lambda1[opt_ind1], lambda2 = lambda2[opt_ind2], alpha = alpha, admm_control = admm_control)
 
       model_info = list(intercept = full_model$interceptlist[[1]], beta = full_model$betalist[[1]],
                         iters = full_model$iterslist[[1]],
