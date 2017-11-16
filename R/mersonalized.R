@@ -119,7 +119,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         lambda = full_model$lambda,
                         penalty = penalty, unique_rule = TRUE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
     } else if (penalty == "none"){
 
@@ -131,7 +131,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         penalty = penalty, unique_rule = TRUE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
     }
 
   } else {
@@ -153,7 +153,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
     } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
 
@@ -221,7 +221,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         lambda1 = lambda1, lambda2 = lambda2,
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
 
     } else if (penalty %in% c("lasso", "GL", "SGL")){
 
@@ -269,7 +269,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         lambda1 = full_model$lambda, lambda2 = lambda2,
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
     }
   }
 
