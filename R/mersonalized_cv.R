@@ -322,7 +322,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                       unique_lambda = full_model$lambda,
                       opt_unique_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
                       number_covariates = p, number_studies = q,
-                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
   } else {
 
@@ -344,7 +344,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         opt_lambda = list(opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2]),
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
     } else if (penalty %in% c("lasso", "SGL", "GL")){
 
@@ -358,7 +358,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
     }
   }
