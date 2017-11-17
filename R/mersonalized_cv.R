@@ -52,12 +52,19 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     q = length(Ylist)
     Xlist = replicate(q, X, simplify = FALSE)
     Trtlist = replicate(q, Trt, simplify = FALSE)
+    #a default estimate for the propensity score
+    P = ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(Trt)),
+               ifelse(length(P) == 1, rep(P, length(Trt)), P))
     Plist = replicate(q, P, simplify = FALSE)
 
   } else if (problem == "meta-analysis"){
 
     if (missing(Xlist) | missing(Ylist) | missing(Trtlist))
       stop("For meta-analysis, Xlist, Ylist, Trtlist need to be supplied!")
+    #a default estimate for the propensity score
+    Plist = mapply(function(P, Trt) return(ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(P)),
+                                                  ifelse(length(P) == 1, rep(P, length(Trt)), P))),
+                   P = Plist, Trt = Trtlist, SIMPLIFY = FALSE)
   }
 
   q = length(Xlist)
@@ -229,17 +236,19 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       cv_Xlist[[j]] = Xlist[[j]][-folds_index[[j]][[k]],]
       cv_Ylist[[j]] = Ylist[[j]][-folds_index[[j]][[k]]]
       cv_Trtlist[[j]] = Trtlist[[j]][-folds_index[[j]][[k]]]
+      cv_Plist[[j]] = Plist[[j]][-folds_index[[j]][[k]]]
 
       left_Xlist[[j]] = Xlist[[j]][folds_index[[j]][[k]],]
       left_Ylist[[j]] = Ylist[[j]][folds_index[[j]][[k]]]
       left_Trtlist[[j]] = Trtlist[[j]][folds_index[[j]][[k]]]
+      left_Plist[[j]] = Plist[[j]][folds_index[[j]][[k]]]
     }
 
     cv_Conlist = mapply(contrast_builder, X = cv_Xlist, Y = cv_Ylist,
-                     ori_Trt = cv_Trtlist, P = Plist, type = typelist,
+                     ori_Trt = cv_Trtlist, P = cv_Plist, type = typelist,
                      MoreArgs = list(response_model = "lasso"), SIMPLIFY = FALSE)
     left_Conlist = mapply(contrast_builder, X = left_Xlist, Y = left_Ylist,
-                      ori_Trt = left_Trtlist, P = Plist, type = typelist,
+                      ori_Trt = left_Trtlist, P = left_Plist, type = typelist,
                       MoreArgs = list(response_model = "lasso"), SIMPLIFY = FALSE)
 
     cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, unique_rule = unique_rule)
@@ -322,7 +331,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                       unique_lambda = full_model$lambda,
                       opt_unique_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
                       number_covariates = p, number_studies = q,
-                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
   } else {
 
@@ -344,7 +353,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         opt_lambda = list(opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2]),
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
     } else if (penalty %in% c("lasso", "SGL", "GL")){
 
@@ -358,7 +367,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
     }
   }
