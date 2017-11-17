@@ -87,7 +87,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     if (missing(Xlist) | missing(Ylist) | missing(Trtlist))
       stop("For meta-analysis, Xlist, Ylist, Trtlist need to be supplied!")
     #create defauly value for the propensity score
-    Plist = mapply(function(P, Trt) return(ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(P)),
+    Plist = mapply(function(P, Trt) return(ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(Trt)),
                                                   ifelse(length(P) == 1, rep(P, length(Trt)), P))),
                    P = Plist, Trt = Trtlist, SIMPLIFY = FALSE)
   }
