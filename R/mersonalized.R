@@ -77,8 +77,12 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     Xlist = replicate(q, X, simplify = FALSE)
     Trtlist = replicate(q, Trt, simplify = FALSE)
     #create default value for the propensity score
-    P = ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(Trt)),
-               ifelse(length(P) == 1, rep(P, length(Trt)), P))
+    if (is.null(P)){
+      P = rep(sum(Trt) / length(Trt), length(Trt))
+    } else {
+      if (length(P) == 1)
+        P = rep(P, length(Trt))
+    }
 
     Plist = replicate(q, P, simplify = FALSE)
 
@@ -87,9 +91,19 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     if (missing(Xlist) | missing(Ylist) | missing(Trtlist))
       stop("For meta-analysis, Xlist, Ylist, Trtlist need to be supplied!")
     #create defauly value for the propensity score
-    Plist = mapply(function(P, Trt) return(ifelse(is.null(P), rep(sum(Trt) / length(Trt), length(Trt)),
-                                                  ifelse(length(P) == 1, rep(P, length(Trt)), P))),
-                   P = Plist, Trt = Trtlist, SIMPLIFY = FALSE)
+    Plist = mapply(
+      function(P, Trt){
+        if (is.null(P)){
+          P = rep(sum(Trt) / length(Trt), length(Trt))
+        } else {
+          if (length(P) == 1)
+            P = rep(P, length(Trt))
+        }
+        return(P)
+      },
+      P = Plist,
+      Trt = Trtlist,
+      SIMPLIFY = FALSE)
   }
 
   q = length(Xlist)
