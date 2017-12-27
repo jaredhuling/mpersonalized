@@ -9,8 +9,6 @@ unique_rule_lasso_method = function(modelYlist, modelXlist, Ybar, Xbar, Xsd, lam
   lasso_model = glmnet(x = x, y = y, family = "gaussian", standardize = FALSE,
                        intercept  = FALSE, lambda = lambda)
 
-  if (is.null(lambda))
-    lambda = lasso_model$lambda
 
   decreasing_order = order(lambda, decreasing = TRUE)
 
