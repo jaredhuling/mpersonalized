@@ -96,7 +96,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
 
-  #check model is correct and set up the value for lambdas if not provided
+  #check whether the information provided is correct and set up the value for lambdas if not provided
   if (unique_rule == TRUE){
 
     Ybar = standardized_data$Ybar
@@ -104,15 +104,16 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     Xsd = standardized_data$Xsd
 
     if (penalty != "lasso")
-      stop("When unique rule is required, the penalty must be lasso!(no penalty, use function 'mpersonalized' instead.")
+      stop("When unique rule is required, the penalty must be lasso!(for penalty = none, use function 'mpersonalized' instead.")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
       warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
 
     if (is.null(unique_rule_lambda)){
-      full_model = unique_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
-                                            Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = unique_rule_lambda)
-      unique_rule_lambda = full_model$lambda
+      lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+                                       penalty = penalty, unique_rule = unique_rule)
+
+      unique_rule_lambda = lambda_default$unique_rule_lambda
     }
 
   } else {
@@ -124,21 +125,10 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     if (!is.null(unique_rule_lambda))
       warning("When unique rule = FALSE, the value for unique_rule_lambda is ignored!")
 
+    if (penalty == "none")
+      stop("For penalty = none, use function 'mpersonalized' instead.")
+
     if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
-
-      if (penalty != "fused"){
-        if (is.null(lambda1) | is.null(lambda2))
-          stop("When penalty = lasso+fused/GL+fused/SGL+fused, both values of lambda1 and lambda2 must be supplied!")
-        if (sum(lambda1 == 0) > 0 | sum(lambda2 == 0) > 0)
-          stop("When penalty = lasso+fused/GL+fused/SGL+fused, do not supply 0 in lambda1 and lambda2!")
-      }
-
-      if (penalty == "fused"){
-        if (is.null(lambda2))
-          stop("When penalty = fused, lambda2 must be supplied!")
-        if (sum(lambda2 == 0) > 0)
-          stop("When penalty = fused, do not supply 0 in lambda2!")
-      }
 
       if (penalty == "fused"){
         if (!is.null(alpha)){
@@ -175,19 +165,29 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
           if (alpha == 0 | alpha == 1){
             warning("When penalty = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
-          } else if (is.null(alpha)){
-            alpha = 0.95
-          }
+          } else alpha = 0.95
       }
-    } else if (penalty %in% c("lasso", "GL", "SGL")){
 
+      if (is.null(lambda1) | is.null(lambda2)){
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha)
+
+        if (is.null(lambda1))
+          lambda1 = lambda_default$lambda1
+
+        if (is.null(lambda2))
+          lambda2 = lambda_default$lambda2
+      }
+
+    } else if (penalty %in% c("lasso", "GL", "SGL")){
 
       if (!is.null(lambda2)){
         if (sum(lambda2 != 0) > 0){
           warning("When penalty = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
-          lambda2 = 0
         }
-      } else lambda2 = 0
+      }
+
+      lambda2 = 0
 
       if (penalty == "lasso"){
 
@@ -212,16 +212,14 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
             warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           }
-        } else {
-          alpha = 0.95
-        }
+        } else alpha = 0.95
       }
 
       if (is.null(lambda1)){
-        full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
-                                               Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
-                                               lambda = lambda1, alpha = alpha)
-        lambda1 = full_model$lambda
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha)
+
+        lambda1 = lambda_default$lambda1
       }
     }
   }
@@ -343,8 +341,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
     opt_ind = which.min(tune_cost)
     model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
-                      unique_lambda = full_model$lambda,
-                      opt_unique_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
+                      unique_rule_lambda = unique_rule_lambda,
+                      opt_unique_rule_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
                       number_covariates = p, number_studies = q,
                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -365,7 +363,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(intercept = full_model$interceptlist[[1]], beta = full_model$betalist[[1]],
                         iters = full_model$iterslist[[1]],
                         lambda1 = lambda1, lambda2 = lambda2,
-                        opt_lambda = list(opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2]),
+                        opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2],
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
@@ -377,8 +375,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                              lambda = lambda1, alpha = alpha)
 
       opt_ind = which.min(tune_cost)
+
       model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
-                        lambda1 = full_model$lambda, lambda2 = 0,
+                        lambda1 = lambda1, lambda2 = lambda2,
                         opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
                         alpha = alpha, penalty = penalty, unique_rule = FALSE,
                         number_covariates = p, number_studies = q,
