@@ -8,7 +8,7 @@
 #' @return estimated lambda for required penalty if not provided
 #'
 lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule){
-  estimated_lambda = NULL
+  lambda_estimate = NULL
 
   #need to estimate lambda1?
   if (unique_rule == FALSE &
@@ -28,7 +28,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule){
                      alpha = alpha, standardize = FALSE)$lambdas
     lambda1 = SGL_lambda
 
-    estimated_lambda$lambda1 = lambda1
+    lambda_estimate$lambda1 = lambda1
   }
 
   #need to estimate lambda2?
@@ -53,7 +53,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule){
     genlasso_lambda = genlasso(y = y, X = x, D = D)$lambda
     lambda2 = quantile(genlasso_lambda, probs = seq(0.1, 1, 0.1))
 
-    estimated_lambda$lambda2 = lambda2
+    lambda_estimate$lambda2 = lambda2
   }
 
 
@@ -69,8 +69,8 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule){
                          standardize = FALSE, intercept  = FALSE)$lambda
     unique_rule_lambda = lasso_lambda
 
-    estimated_lambda$unique_rule_lambda = unique_rule_lambda
+    lambda_estimate$unique_rule_lambda = unique_rule_lambda
   }
 
-  return(estimated_lambda)
+  return(lambda_estimate)
 }
