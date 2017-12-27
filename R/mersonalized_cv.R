@@ -104,7 +104,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     Xsd = standardized_data$Xsd
 
     if (penalty != "lasso")
-      stop("When unique rule is required, the penalty must be lasso!(for no penalty, use 'mersonalized' instead.")
+      stop("When unique rule is required, the penalty must be lasso!(no penalty, use function 'mpersonalized' instead.")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
       warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
