@@ -7,7 +7,7 @@
 #'
 #' @return estimated lambda for required penalty if not provided
 #'
-lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule){
+lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha){
   lambda_estimate = NULL
 
   #need to estimate lambda1?
