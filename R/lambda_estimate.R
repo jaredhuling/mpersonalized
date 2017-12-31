@@ -6,7 +6,7 @@
 #' @import glmnet SGL Matrix genlasso
 #'
 #' @return estimated lambda for required penalty if not provided
-#'
+#' @export
 lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha){
   lambda_estimate = NULL
 

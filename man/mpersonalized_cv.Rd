@@ -10,7 +10,7 @@ mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   simplify = FALSE), penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused",
   "GL+fused", "SGL+fused"), lambda1 = NULL, lambda2 = NULL,
   unique_rule_lambda = NULL, alpha = NULL, unique_rule = FALSE,
-  cv_folds = 5)
+  cv_folds = 5, admm_control = NULL)
 }
 \arguments{
 \item{problem}{a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,

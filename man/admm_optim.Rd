@@ -4,6 +4,6 @@
 \alias{admm_optim}
 \title{ADMM Algorithm for Meta-analysis/Multiple Outcomes Personalized Medicine}
 \usage{
-admm_optim(x, y, p, q, lambda1, lambda2, lambda3, rho, abs.tol = 1e-05,
-  rel.tol = 1e-05, maxit = 500L)
+admm_optim(x, y, p, q, lambda1, lambda2, lambda3, abs.tol = 1e-05,
+  rel.tol = 1e-05, maxit = 500L, rho = NULL)
 }
