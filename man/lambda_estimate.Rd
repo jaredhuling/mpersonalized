@@ -4,7 +4,8 @@
 \alias{lambda_estimate}
 \title{Default Penalty Parameter Sequence if Not Given}
 \usage{
-lambda_estimate(modelXlist, modelYlist, penalty, unique_rule, alpha)
+lambda_estimate(modelXlist, modelYlist, penalty, unique_rule, alpha,
+  num_lambda1, num_lambda2, num_unique_rule_lambda)
 }
 \arguments{
 \item{modelXlist}{the Xlist in contrast framework after standardization}

@@ -9,7 +9,11 @@ mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   simplify = FALSE), typelist = replicate(length(Xlist), "continuous",
   simplify = FALSE), penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused",
   "GL+fused", "SGL+fused"), lambda1 = NULL, lambda2 = NULL,
-  unique_rule_lambda = NULL, alpha = NULL, unique_rule = FALSE,
+  unique_rule_lambda = NULL, num_lambda1 = ifelse(!is.null(lambda1),
+  length(lambda1), 10), num_lambda2 = ifelse(!is.null(lambda2),
+  length(lambda2), 10),
+  num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda),
+  length(unique_rule_lambda), 50), alpha = NULL, unique_rule = FALSE,
   cv_folds = 5, admm_control = NULL)
 }
 \arguments{
@@ -43,11 +47,19 @@ problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k
 
 \item{unique_rule_lambda}{\eqn{\lambda} when unique rule is used.}
 
+\item{num_lambda1}{length of the lambda1 sequence and default to be 10 if lambda1 is not provided}
+
+\item{num_lambda2}{length of the lambda2 sequence and default to be 10 if lambda2 is not provided}
+
+\item{num_unique_rule_lambda}{length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided}
+
 \item{alpha}{alpha in the framework when different rules are used.}
 
 \item{unique_rule}{a logical value, whether a unique treatment rule is required}
 
 \item{cv_folds}{number of folds needed for cross-validation, default is 5}
+
+\item{admm_control}{a control sequence for the admm algorithm}
 
 \item{typlelist}{a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 Each element should be "continuous" or "binary".}
