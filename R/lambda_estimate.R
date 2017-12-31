@@ -7,7 +7,8 @@
 #'
 #' @return estimated lambda for required penalty if not provided
 #' @export
-lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha){
+lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha,
+                            num_lambda1, num_lambda2, num_unique_rule_lambda){
   lambda_estimate = NULL
 
   #need to estimate lambda1?
@@ -25,7 +26,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha)
 
     data = list(x = x, y = y)
     SGL_lambda = SGL(data = data, index = rep(1 : p, q),
-                     alpha = alpha, standardize = FALSE)$lambdas
+                     alpha = alpha, standardize = FALSE, nlam = num_lambda1)$lambdas
     lambda1 = SGL_lambda
 
     lambda_estimate$lambda1 = lambda1
@@ -51,7 +52,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha)
     D = as.matrix(bdiag(replicate(p, D, simplify = FALSE)))
 
     genlasso_lambda = genlasso(y = y, X = x, D = D)$lambda
-    lambda2 = quantile(genlasso_lambda, probs = seq(1, 0.1, -0.1))
+    lambda2 = quantile(genlasso_lambda, probs = seq(1, 0, -1 / num_lambda2), names = FALSE)
 
     lambda_estimate$lambda2 = lambda2
   }
@@ -66,7 +67,8 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha)
     x = sqrt(total_n) * x; y = sqrt(total_n) * y
 
     lasso_lambda = glmnet(x = x, y = y, family = "gaussian",
-                         standardize = FALSE, intercept  = FALSE)$lambda
+                         standardize = FALSE, intercept  = FALSE,
+                         nlambda = num_unique_rule_lambda)$lambda
     unique_rule_lambda = lasso_lambda
 
     lambda_estimate$unique_rule_lambda = unique_rule_lambda

@@ -27,6 +27,10 @@
 #' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
 #' @param unique_rule a logical value, whether a unique treatment rule is required
 #' @param cv_folds number of folds needed for cross-validation, default is 5
+#' @param admm_control a control sequence for the admm algorithm
+#' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
+#' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
+#' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided
 #' @import glmnet SGL caret Matrix
 #' @return an S3 object of class "mp_cv", which contains the information of the model with the best fitted lambda. It can be supplied to the predict function.
 #' @export
@@ -38,6 +42,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             penalty = c("lasso", "GL", "SGL", "fused",
                                       "lasso+fused", "GL+fused", "SGL+fused"),
                             lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
+                            num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
+                            num_lambda2 = ifelse(!is.null(lambda2), length(lambda2),10),
+                            num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda), length(unique_rule_lambda), 50),
                             alpha = NULL, unique_rule = FALSE, cv_folds = 5,
                             admm_control = NULL){
 
@@ -111,7 +118,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
     if (is.null(unique_rule_lambda)){
       lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                       penalty = penalty, unique_rule = unique_rule)
+                                       penalty = penalty, unique_rule = unique_rule,
+                                       num_unique_rule_lambda = num_unique_rule_lambda)
 
       unique_rule_lambda = lambda_default$unique_rule_lambda
     }
@@ -171,7 +179,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1) | is.null(lambda2)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha)
+                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         num_lambda1 = num_lambda1, num_lambda2 = num_lambda2)
 
         if (is.null(lambda1))
           lambda1 = lambda_default$lambda1
@@ -218,7 +227,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha)
+                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         num_lambda1 = num_lambda1)
 
         lambda1 = lambda_default$lambda1
       }
