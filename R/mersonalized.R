@@ -27,7 +27,7 @@
 #' \item If \eqn{\lambda = 0}, there is no penalty.
 #' }
 #'
-#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
+#' @param problem a character specifiy whether the user want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
 #'  the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
 #'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
 #' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
