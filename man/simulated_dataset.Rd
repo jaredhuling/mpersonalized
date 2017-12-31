@@ -4,12 +4,15 @@
 \alias{simulated_dataset}
 \title{Simulated Dataset Generator}
 \usage{
-simulated_dataset(n, sim_seed)
+simulated_dataset(n, sim_seed, problem = c("meta-analysis",
+  "multiple outcomes"))
 }
 \arguments{
 \item{n}{sample size}
 
 \item{sim_seed}{the seed supplied to the generation}
+
+\item{problem}{a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem.}
 }
 \value{
 A simulated dataset.
