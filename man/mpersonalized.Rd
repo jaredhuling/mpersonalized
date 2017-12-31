@@ -17,7 +17,7 @@ mpersonalized(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   admm_control = NULL)
 }
 \arguments{
-\item{problem}{a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
+\item{problem}{a character specifiy whether the user want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
 the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
 the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.}
 
