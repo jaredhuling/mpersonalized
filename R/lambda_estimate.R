@@ -51,7 +51,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha)
     D = as.matrix(bdiag(replicate(p, D, simplify = FALSE)))
 
     genlasso_lambda = genlasso(y = y, X = x, D = D)$lambda
-    lambda2 = quantile(genlasso_lambda, probs = seq(0.1, 1, 0.1))
+    lambda2 = quantile(genlasso_lambda, probs = seq(1, 0.1, -0.1))
 
     lambda_estimate$lambda2 = lambda2
   }
