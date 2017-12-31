@@ -113,6 +113,13 @@ admm_optim = function(x, y, p, q, lambda1, lambda2, lambda3,
     AtA <- crossprod(A); AtB <- crossprod(A, B); AtC <- crossprod(A, C)
     iters <- maxit
 
+    if (is.null(rho)){
+
+      eigs = eigen(xtx, symmetric=TRUE, only.values=TRUE)
+      rho <- sqrt(eigs$values[1] * eigs$values[p * q])
+
+    }
+
     beta <- numeric(p * q)
     gamma<- numeric(ngencon * p)
     eta <- numeric(p * q)
