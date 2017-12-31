@@ -161,11 +161,12 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       } else if (penalty == "SGL+fused"){
 
-        if (!is.null(alpha))
+        if (!is.null(alpha)){
           if (alpha == 0 | alpha == 1){
             warning("When penalty = SGL+fused, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
-          } else alpha = 0.95
+          }
+        } else alpha = 0.95
       }
 
       if (is.null(lambda1) | is.null(lambda2)){
