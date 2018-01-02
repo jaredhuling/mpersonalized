@@ -3,7 +3,7 @@
 #' @description This function could generate a simulated dataset for the test and usage of this package.
 #' @param n sample size
 #' @param sim_seed the seed supplied to the generation
-#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem.
+#' @param problem a character specifiy whether to generate simulated data set for "meta-analysis" or "multiple outcomes" problem.
 #' @return A simulated dataset.
 #' \item{Xlist}{a list object with \eqn{k}th element denoting the covariate matrix of study k}
 #' \item{Ylist}{a list object with \eqn{k}th element denoting the response vector of study k}
@@ -44,7 +44,7 @@ simulated_dataset = function(n, sim_seed,
     }
     set.seed(NULL)
 
-    return(list(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist))
+    return(list(Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, B = B))
   }
 
 
@@ -68,6 +68,6 @@ simulated_dataset = function(n, sim_seed,
     }
     set.seed(NULL)
 
-    return(list(X = X[,2 : (p + 1)], Ylist = Ylist, Trt = Trt))
+    return(list(X = X[,2 : (p + 1)], Ylist = Ylist, Trt = Trt, B = B))
   }
 }
