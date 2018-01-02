@@ -12,7 +12,7 @@ simulated_dataset(n, sim_seed, problem = c("meta-analysis",
 
 \item{sim_seed}{the seed supplied to the generation}
 
-\item{problem}{a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem.}
+\item{problem}{a character specifiy whether to generate simulated data set for "meta-analysis" or "multiple outcomes" problem.}
 }
 \value{
 A simulated dataset.
