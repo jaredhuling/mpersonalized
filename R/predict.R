@@ -7,7 +7,7 @@
 #' @param overall_rec a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.
 #' @param weight a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.
 #'
-#' @return a list of results with each element in the list corresponding to the prediciton by using each penalty parameter. Each element in this list contains:
+#' @return a list of results with each element in the list corresponding to the prediciton by each different penalty parameter. Each element in this list contains:
 #' \item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
 #' If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
 #' \item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
