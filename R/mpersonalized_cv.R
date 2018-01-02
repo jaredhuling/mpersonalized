@@ -258,6 +258,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     cv_Xlist = vector("list", q); left_Xlist = vector("list", q)
     cv_Ylist = vector("list", q); left_Ylist = vector("list", q)
     cv_Trtlist = vector("list", q); left_Trtlist = vector("list", q)
+    cv_Plist = vector("list", q); left_Plist = vector("list", q)
 
     for (j in 1:q){
       cv_Xlist[[j]] = Xlist[[j]][-folds_index[[j]][[k]],]
