@@ -1,22 +1,24 @@
 #' @title Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
 #'
-#' @details This function implments basically implements \code{mpersonalized} but use cross validatation for the tuning of penalty parameter.
+#' @details This function implments \code{mpersonalized} but use cross validatation for the tuning of penalty parameter.
 #'  The optimal penalty parameter is selected by minimizing \deqn{\sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2}
-#'  where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is separately estimated from the training set.
+#'  in the leave-out fold, where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is separately estimated from the training set.
 #'
 #' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
 #'  the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
 #'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
 #' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
 #' @param Trt the treatment vector that should be supplied when the problem is "multiple outcomes". It should be coded as 0 or 1.
-#' @param P the propensity score vector when the problem is "multiple outcomes".
+#' @param P the propensity score vector when the problem is "multiple outcomes". If not supplied, then study is treated as randomzied trial and the propensity
+#'  score is estimated as the proportion of 1's in Trt.
 #' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study \eqn{k}. This should be supplied when the problem is
 #'  "meta-analysis".
 #' @param Ylist When the problem is "meta-analysis", \code{Ylist} should be a list object with \eqn{k}th element denoting the response vector of study \eqn{k}. When the
 #'  problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
 #' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1). This should be supplied when the problem is
 #'  "meta-analysis".
-#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
+#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}. If not supplied, then
+#'  each study is treated as randomized trial and the corresponding propensity score is estimated as the proportion of 1's in Trt.
 #' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 #'  Each element should be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
@@ -27,7 +29,8 @@
 #' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
 #' @param unique_rule a logical value, whether a unique treatment rule is required
 #' @param cv_folds number of folds needed for cross-validation, default is 5
-#' @param admm_control a control sequence for the admm algorithm
+#' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
+#' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
 #' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
 #' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
 #' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided

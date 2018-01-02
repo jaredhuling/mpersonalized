@@ -32,14 +32,16 @@
 #'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
 #' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
 #' @param Trt the treatment vector that should be supplied when the problem is "multiple outcomes". It should be coded as 0 or 1.
-#' @param P the propensity score vector when the problem is "multiple outcomes".
+#' @param P the propensity score vector when the problem is "multiple outcomes". If not supplied, then study is treated as randomzied trial and the propensity
+#'  score is estimated as the proportion of 1's in Trt.
 #' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study \eqn{k}. This should be supplied when the problem is
 #'  "meta-analysis".
 #' @param Ylist When the problem is "meta-analysis", \code{Ylist} should be a list object with \eqn{k}th element denoting the response vector of study \eqn{k}. When the
 #'  problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
 #' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1). This should be supplied when the problem is
 #'  "meta-analysis".
-#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
+#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}. If not supplied, then
+#'  each study is treated as randomized trial and the corresponding propensity score is estimated as the proportion of 1's in Trt.
 #' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 #'  Each element should be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
@@ -49,7 +51,8 @@
 #' @param alpha alpha in the framework when different rules are used.
 #' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
 #' @param unique_rule a logical value, whether a unique treatment rule is required
-#' @param admm_control a control sequence for the admm algorithm
+#' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
+#' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
 #' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
 #' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
 #' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided
