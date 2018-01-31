@@ -1,5 +1,5 @@
 ---
-title: "mpersonalzied Package Tutorial"
+title: "mpersonalized Package Tutorial"
 author: "Chensheng Kuang"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
