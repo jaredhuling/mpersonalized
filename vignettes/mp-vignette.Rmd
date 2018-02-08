@@ -1,5 +1,5 @@
 ---
-title: "mpersonalized Package Tutorial"
+title: "'mpersonalized': An R package for meta-analysis and multiple outcomes in personalized medicine."
 author: "Chensheng Kuang"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -8,91 +8,178 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+# What `mpersonalized` Does
+
+`mpersonlized` is an R package dedicated to solving the problem of personalized medicine in meta-analysis and multiple outcomes. In both problems, estimation efficiency could be gained by making use of the common information across multiple studies/multiple outcomes. Meanwhile, `mpersonalized` estimates a different benefit score $g$ for each study/outcome so as to capture the internal differences. Finally, a comprehensive recommendation could be based on a wegihted sum of all the  different $g$s.
+
+# Overview
+
+The core functions in this package are `mpersonalized`and `mpersonalized_cv`, where the second is the cross validated version of the first one. In general, the procedures of `mpersonalized` could be described in two steps.
+
+1. Construct a contrast estimator for each subject in each study/outcome.
+2. Setting up an overall weighted classification problem based on the contrast estimator in step 1.
+
+## Estimating Contrast Function
+Denote the baseline covarates as $X$, treatment as $A$ and outcome as $Y$. Contrast function $C(X)$ is defined as $E(Y|A=1,X)-E(Y|A=0,X)$. In `mpersonalized` and `mpersonalized_cv`, the contrast for each subject is estimated via augmented inverse probability weighted estimator (AIPWE) $\hat{C}(X)$, where $$\hat{C}(X) = \frac{A[Y-a(X)]}{\pi(X)}-\frac{(1-A)[Y-a(X)]}{1-\pi(X)}$$ and $$a(X)=\{1-\pi(X)\}E( Y | A=1,X)+\pi(X)E(Y | A=0,X), \quad \pi(x) = E(A=1|X)$$.
+
+The functions `mpersonalized` and `mpersonalized_cv` will automatically compute AIPWE for the contrast function in each study. If the propensity score $\pi(X)$ is not provided, the functions will defaultly estimate it as a constant function and it is equal to the proportion of treated units.
+
+## Weighted Classification Problem Based on Contrast Estimators
+For each study/outcome, we could construct a weighted classification problem, $$\min_{g} \frac{1}{2} \sum_{i=1}^{n}\frac{|\hat{C}(X_{i})|}{\sum_{i=1}^{n}|\hat{C}(X_{i})|}\bigl [1\{\hat{C}(X_{i})>0\}-g(X_{i})\bigr]^2$$ to estimate the benefit score $g(X)$.
+
+In `mpersonalized` and `mpersonalized_cv`, all the $g_k$ are estimated via the following overall weighted classification problem. 
+$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g_k(X_{ki})\bigr]^2 + h(g_1,\dots,g_K)$$
+Here the regularization function $h$ is of the form of a sum of sparse group lasso and fused lasso penalty
+$$h = (1-\alpha)\lambda_1\sqrt{q} \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_2+\alpha \lambda_1  \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_1+ \lambda_2 \sum_{j=1}^p \sum_{1\le a < b \le K}|\beta_{ja}-\beta_{jb}|$$
+where $\boldsymbol{\beta_j}=(\beta_{j1},\dots,\beta_{jK})$.
+
+Both `mpersonalized` and `mpersonalized_cv` provides the flexibility of letting $\lambda1 = 0$, $\lambda2 = 0$ and/or $\alpha = 0$ or $1$.  
+
+# User Guide to `mpersonalized` Package
+
+## Install `mpersonalized` package 
+
+`mpersonalized` package is now available at Github and could be installed through package `devtools`.
+```{r install, eval = FALSE}
+library(devtools)
+install_github("chenshengkuang/mpersonalized")
+```
+
+## Usage of Main Functions
 
 First, load the package.
 ```{r load}
 library(mpersonalized)
 ```
 
-There is a function built up to display and test the package. We can supply a seed to the function so it can reproduce simulated data set that we want.
+## `simulated_dataset`
 
+`simulated_dataset` is a function could be used to display and test the package. We can supply a random seed to `sim_seed` to the function and sepcify the problem setting through `problem` so it can produce a simulated data set of the format required by `mpersonalized` and `mpersonalized_cv`.
+
+### Example
 For example, we can first generate some data for the meta-analysis problem. 
 ```{r simulate data}
-sim_data = simulated_dataset(n = 200, sim_seed = 123, problem = "meta-analysis")
+sim_data_meta = simulated_dataset(n = 200, sim_seed = 123, problem = "meta-analysis")
 
-names(sim_data)
+B_main = sim_data_meta$B[,1:12]
+B_main
 
-B = sim_data$B
+B_int = sim_data_meta$B[,52:57]
+B_int
+```
+The simulated dataset is composed of 6 stuides/outcomes. The outcome is generated via the model
+$$Y = B_{main}X+A*B_{int}X$$,
+where the $B_{main}$ and $B_{int}$ are as above.
 
-mainB = B[,1:12]
-mainB
-
-interactionB = B[,52:57]
-interactionB
-
-Xlist = sim_data$Xlist; Ylist = sim_data$Ylist; Trtlist = sim_data$Trtlist
+The data format is slightly different for different problems, for example,
+```{r structure of simulated dataset}
+Xlist = sim_data_meta$Xlist; Ylist = sim_data_meta$Ylist; Trtlist = sim_data_meta$Trtlist
 
 str(Xlist)
 str(Ylist)
 str(Trtlist)
 
-```
-To generate test data for multiple outcomes problem, we only need to change the argument `problem` to be "multiple outcomes". 
+sim_data_multiple = simulated_dataset(n = 200, sim_seed = 123, problem = "multiple outcomes")
 
-The data format is slightly different, for example,
-```{r multiple outcomes simulated}
-sim_data = simulated_dataset(n = 200, sim_seed = 123, problem = "multiple outcomes")
+names(sim_data_multiple)
 
-names(sim_data)
-
-X = sim_data$X; Ylist = sim_data$Ylist; Trt = sim_data$Trt
+X = sim_data_multiple$X; Ylist = sim_data_multiple$Ylist; Trt = sim_data_multiple$Trt
 
 str(X)
 str(Ylist)
 str(Trt)
 ```
 
-```{r simulate data for meta-analysis, echo = FALSE}
+
+## `mpersonalized` 
+This function is the main functions in this package. The arguments of this funcion are listed below.
+
+`problem`:
+
+we should always specificy what `problem` we want to solve. The problem argument could be either `problem = "meta-analysis"` or `problem = "multiple outcomes"` The default is `problem = "meta-analysis"`.
+
+To solve the problem of meta-analysis, we should supply the arguments
+
+* `Xlist`
+* `Ylist`
+* `Trtlist`
+
+Each item in the list corresponds to the $X$, $Y$ and $A$ of a sepcific study.
+
+To solve the problem of multiple outcomes, instead we should supply the arguments
+
+* `X`
+* `Ylist`
+* `Trt`
+
+Here each item in `Ylist` corresponds to an outcome while `X` and `Trt` are the design matrix and treatment indicator of this study.
+
+`P` & `Plist`:
+
+If the propensity score is to be provided, it should be passed through these two arguments depending on what problem we are solving. If `problem = "meta-analysis"`, then `Plist` should be used with each item in the list corresponding to the propensity score in each study. If `problem = "multiple outcomes"`, `P` should be used to supply propensity score. If they are not supplied, then the default propensity score is estimated as the proportion of treated units and same across all subjects.
+
+`typelist`:
+
+The type of the outcome with opitional choices as "continuous" and "binary". Each item in the list corresponds to the type of the outcome in each study/outcome. If not provided, the default choice is "continuous". This specification is helpful to the efficiency augmentation in contrast estimator.
+
+`penalty`:
+
+The argument specifies the penalty term $h$. There is a few options for this argument.
+
+* "none": linear model. $\lambda_1 = 0$, $\lambda_2 = 0$
+* "lasso": lasso penalty. $\alpha = 1$, $\lambda_1 \ne 0$, $\lambda_2 = 0$.
+* "GL": group lasso penalty. $\alpha = 0$, $\lambda_1 \ ne 0$, $\lambda_2 = 0$.
+* "SGL": sparse group lasso penalty. $\alpha \ne 0$ or $1$, $\lambda_1 \ne 0$, $\lambda_2 = 0$
+* "fused": fused lasso penalty. $\lambda_1 = 0$, $\lambda_2 \ne 0$.
+* "lasso+fused": lasso penalty and fused lasso penalty. $\alpha = 1$, $\lambda_1 \ne 0$, $\lambda_2 \ne 0$.
+* "GL+fused": group lasso penalty and fused lasso penalty. $\alpha = 0$, $\lambda_1 \ne 0$, $\lambda_2 \ne 0$.
+* "SGL+fused": sparse group lasso penalty and fused lasso penalty. $\alpha \ne 0$ or $1$, $\lambda_1 \ne 0$, $\lambda_2 \ne 0$.
+
+
+The optimization procedure depends on whether we have fused term. When $\lambda_2 = 0$, the model is implemented through `SGL' package, and when $\lambda_2 \ne 0$, the model is implemented through ADMM algorithm.
+
+`lambda1`, `lambda2` & `alpha`:
+
+These arguements corresponds to $\lambda_1$, $\lambda_2$ and $\alpha$ in the penalty $h$. These arguments could be leave null to be automatically calculated, but user could also supply a sequence of their choice.
+
+`num_lambda1` & `num_lambda2`:
+
+If user choose to use default sequence of $\lambda_1$ and $\lambda_2$, then user could choose to specifiy the length of sequence of $\lambda_1$ and $\lambda_2$. The default length is 10 for both $\lambda_1$ and $\lambda_2$.
+
+`unique_rule`:
+
+This argument should be specified to be `TRUE` if user want all the $g$s to be the same, i.e., $g_1 = \dots = g_K$. In this case, $g$ is estimated from the following optimization problem:
+
+$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g(X_{ki})\bigr]^2 + \lambda_{unique}\sum_{j=1}^p\|\beta_j\|_1$$
+
+When `unique_rule = TRUE`, the `penalty` function only has two choice: `none` and `lasso`, corresponding to the case $\lambda_{unique} = 0$ and $\lambda_{unique} \ne 0$.
+
+`unique_rule_lambda`:
+
+This argument corresponds to $\lambda_{unique}$. It could be leave null to use the default sequence or supplied to use a user specified sequence.
+
+## `mpersonalized_cv`
+
+`mpersonalized_cv` take similar arguments as `mpersonalized` with only a few differences.
+
+`penalty`:
+
+Now this argument does not take `none` any more because when there is no penalty there is also no need for cross validation to tune penalty parameter.
+
+`cv_folds`:
+
+The number of folds used in cross validation. The default number is 5.
+
+### Example
+We will use the "meta-analysis" problem as our example.
+ 
+Based on the penalty user selected, the function will warning and automatically adpat if the supplied penalty parameter is not appropriate.
+
+```{r test, warning = TRUE, error = TRUE}
 sim_data = simulated_dataset(n = 200, sim_seed = 123, problem = "meta-analysis")
 
 Xlist = sim_data$Xlist; Ylist = sim_data$Ylist; Trtlist = sim_data$Trtlist
 
-```
-
-The main functions in this package are `mpersonalized`and `mpersonalized_cv`, where the second is the cross validation version of the first one. The first function will estimate a model for each given penalty parameter while the second will select the optimal one based on cross validation. 
-
-To estimate the meta-analysis problem, we provide `Xlist`, `Ylist`, `Trtlist` to the functions `mpersonalized` and `mpersonalized_cv`, for instance, `mpersonalized(problem = "meta-analysis", Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, ...)`. For the multiple outcomes, instead, we use code like `mpersonalized(problem = "multiple outcomes", X = X, Ylist = Ylist, Trt = Trt,...)`.
-
-Errors will be reported if the arguments required are not provided:
-```{r problem format, error = TRUE}
-mpersonalized(problem = "meta-analysis",
-              X = X, Ylist = Ylist, Trtlist = Trtlist)
-mpersonalized(problem = "multiple outcomes",
-              Xlist = Xlist, Ylist = Ylist, Trt = Trt)
-```
-
-`mpersonalized` function is based on the below framework:
-$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g_k(X_{ki})\bigr]^2 + h(g_1,\dots,g_K)$$
-Here the regularization function $h$ is of the form of a sum of sparse group lasso and fused lasso penalty
-$$h = (1-\alpha)\lambda_1\sqrt{q} \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_2+\alpha \lambda_1  \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_1+ \lambda_2 \sum_{j=1}^p \sum_{1\le a < b \le K}|\beta_{ja}-\beta_{jb}|$$
-where $\boldsymbol{\beta_j}=(\beta_{j1},\dots,\beta_{jK})$.
-
-The optimization depends on whether we have fused term. When $\lambda_2 = 0$, the model is implemented through `SGL' package, and when $\lambda_2 \ne 0$, the model is implemented through ADMM algorithm.
-
-The function `mpersonalized` offers the following 8 different penalties for separate rules of different studies. They are: "linear", "lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused" and "SGL+fused".
-
-There are two approaches if eventually we only want a single recommendation rule. 
-1. We use the above framework to generate recommendations for each different study/outcome. Then the overall recommendation is made by weightedly sum the separate recommendations. The weight can be specified by user.
-2. We directly estimate the overall rule recommendation by the following framework.
-$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g(X_{ki})\bigr]^2 + \lambda_{unique}\sum_{j=1}^p\|\beta_j\|_1$$
-`mpersonalized` offers both approachs. The first approach can be carried in `prediction` function by specifying the weight we want. For the second approach,  we can sepcifiy `unique_rule = TRUE` in the usage of `mpersonalized` or `mpersonalized_cv` and specifying the penalty to be "linear" or "lasso". The function `mpersonalized_cv` does not include the "linear" model for both unique rule and separate rule setting.
-
-No matter `unique_rule = TRUE` or `unique_rule = FALSE`, user should always specify a penalty first and then provide penalty parameters if needed. The default penalty parameters will also be computed automatically if not supplied. 
-
-Next, we will use the "meta-analysis" problem as our example.
-
-Based on the penalty user selected, the function will warning and automatically adpat if the supplied penalty parameter is not appropriate.
-```{r test, warning = TRUE, error = TRUE}
 model_SGL = mpersonalized(problem = "meta-analysis",
                           Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                           penalty = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
@@ -102,7 +189,8 @@ model_lasso = mpersonalized(problem = "meta-analysis",
                             penalty = "lasso", alpha = 0.5, unique_rule = FALSE)
 ```
 
-The functions can still run but the warning message is good for better usage of the function next time.
+
+Even if the supplied penalty parameter is inconsistent with the `penalty` arguemnt, the function will be carried out based on `penalty` but the warning message will be provided.
 
 The penalty parameters can be either specified by user or leave it NULL and use default sequence. If we want to use default penalty parameter, we can also set the length of penalty parameter sequence.
 ```{r deafult sequence}
@@ -115,11 +203,6 @@ model_lasso2 = mpersonalized(problem = "meta-analysis",
 model_lasso3 = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                             penalty = "lasso", num_lambda1 = 10, unique_rule = FALSE)
-model_lasso_fused = mpersonalized(problem = "meta-analysis",
-                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                                  penalty = "lasso+fused", num_lambda1 = 2, num_lambda2 = 2, 
-                                  unique_rule = FALSE)
-
 ```
 
 The penalty sequence can be withdrawn from the model. For each penalty parameter, a set of coefficients and intercept can be obtained. 
@@ -129,28 +212,18 @@ names(model_lasso1)
 model_lasso1$lambda1 
 model_lasso2$lambda2
 
-names(model_lasso_fused)
-
-model_lasso_fused$lambda1
-model_lasso_fused$lambda2
-
 #To obtain the beta and intercept for the 5th lambda1
 beta = model_SGL$betalist[[5]]; intercept = model_SGL$intercept[[5]]
 print(beta)
 print(intercept)
 ```
 
-We could also use cross validation to automatically choose the best tuning parameter. 
+`mpersonalized_cv` use cross validation to automatically choose the best tuning parameter. 
 
 ```{r cv method, error = TRUE, warning = TRUE}
-#the default alpha in SGL is 0.95, but a smaller alpha works better in our case
 model_SGL_cv = mpersonalized_cv(problem = "meta-analysis",
                                 Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                                 penalty = "SGL", cv_folds = 5, unique_rule = FALSE)
-model_SGL_fused_cv = mpersonalized_cv(problem = "meta-analysis",
-                                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                                      penalty = "SGL+fused", num_lambda1 = 2, num_lambda2 = 2,
-                                      cv_folds = 3, unique_rule = FALSE)
 ```
 
 Different from `mpersonalized`, the output from `mpersonalzied_cv` only has the optimal beta and intercept.
@@ -163,18 +236,9 @@ model_SGL_cv$opt_lambda2
 
 model_SGL_cv$beta
 model_SGL_cv$intercept
-
-model_SGL_fused_cv$lambda1
-model_SGL_fused_cv$lambda2
-
-model_SGL_fused_cv$opt_lambda1
-model_SGL_fused_cv$opt_lambda2
-
-model_SGL_fused_cv$beta
-model_SGL_fused_cv$intercept
 ```
 
-Besides, we could also try fit a single rule for all the studies.
+We could also try fit a single rule for all the studies.
 ```{r unique}
 model_unique_lasso_cv = mpersonalized_cv(problem = "meta-analysis",
                                          Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
@@ -187,7 +251,29 @@ model_unique_lasso_cv$beta
 model_unique_lasso_cv$intercept
 ```
 
-We could use `predict` function to predict the optimal treatment for new patients. We first generate some new patients. We could specify an overall weighted recommendation rule. The default weight is equal weight for each response/study. For object returned from `mpersonalized`  function, `predict` predicts the benefit score and treatment for each penalty parameter. If we does not supply `newx`, then `predict` predicts for the original data for each study based on its own rule.
+## `predict`
+
+`predict` function is used to predict the optimal treatment given the baseline covariates of new subjects. For object returned from mpersonalized function, `predict` predicts the benefit score and treatment for each penalty parameter and is able to give an comprehensive recommendation. 
+
+`mp` & `mp_cv`:
+
+The object returned from `mpersonalized` or `mpersonalized_cv` function. 
+
+`newx`:
+
+The baseline covariates matrix to be supplied if prediction is to be made on new subjects. If leave null, then `prediction` is based on the original data set.
+
+`overall_rec`:
+
+This argument specifies whether we want an overall recommendation based on multiple studies/outcomes.
+
+`weight`:
+
+If `overall_rec = TRUE`, then the overall recommendation is given based on this `weight` argument. If leave it null, then equal wegihts are given to recommendations of each study/outcome.
+
+### Example
+
+We first generate some new patients and then use `predict` function to predict on the new subjects and orignal subjects.
 ```{r new patients}
 p = model_SGL$number_covariates
 newx = matrix(rnorm(5 * p), nrow = 5, ncol = p)
@@ -216,7 +302,24 @@ str(pred_orig_cv$treatment)
 str(pred_orig_cv$benefit_score)
 ```
 
-Last, we introduce `plot` method for `mpersonalize` and `mpersonalized_cv` output. The `plot` function draws the mean value of the response based on interaction levels of recommened treatment and received treatment.
+## `plot`
+
+The `plot` function draws the mean responses based on interaction levels of recommened treatment and received treatment. 
+
+`mp` & `mp_cv`:
+
+The object returned from `mpersonalized` or `mpersonalized_cv` function. 
+
+`ind1` & `ind2`:
+
+The index of the sequence of $\lambda_1$ and $\lambda_2$.
+
+`unique_ind`:
+
+If `unique_rule = TRUE`, then `unique_ind` should be supplied instead of `ind1` and `ind2`.
+
+
+### Example
 ```{r plot, fig.width = 8, fig.height = 4}
 #to plot for output from mpersonalized, we need to supply the index of penalty parameter
 #5th of lambda1, 1st of lambda2
@@ -234,4 +337,4 @@ plot[[1]]
 plot[[3]]
 ```
 
-This package is now available from Github at https://github.com/chenshengkuang/mpersonalized. 
+ 
