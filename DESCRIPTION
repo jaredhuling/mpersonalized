@@ -15,7 +15,7 @@ Imports: glmnet,
     caret,
     ggplot2,
     gridExtra,
-    genlasso
+    genlasso,
     Matrix
 Suggests: knitr,
     rmarkdown
