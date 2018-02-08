@@ -14,7 +14,9 @@ Imports: glmnet,
     SGL,
     caret,
     ggplot2,
-    gridExtra
+    gridExtra,
+    genlasso
+    Matrix
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
