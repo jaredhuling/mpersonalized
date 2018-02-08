@@ -12,7 +12,7 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports: glmnet,
     SGL,
-    Rcpp,
+    caret,
     ggplot2,
     gridExtra
 Suggests: knitr,
