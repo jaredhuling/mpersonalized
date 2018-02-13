@@ -49,7 +49,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             num_lambda2 = ifelse(!is.null(lambda2), length(lambda2),10),
                             num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda), length(unique_rule_lambda), 50),
                             alpha = NULL, unique_rule = FALSE, cv_folds = 5,
-                            admm_control = NULL){
+                            admm_control = NULL,
+                            contrast_builder_control = NULL){
 
   penalty = match.arg(penalty)
   problem = match.arg(problem)
@@ -97,9 +98,16 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
 
   #construct contrast for the data
-  Conlist = mapply(contrast_builder, X = Xlist, Y = Ylist,
-                   ori_Trt = Trtlist, P = Plist, type = typelist,
-                   MoreArgs = list(response_model = "lasso"), SIMPLIFY = FALSE)
+  Conlist = vector("list", q)
+  for (j in 1:q){
+    Conlist[[j]] = do.call(contrast_builder, c(list(X = Xlist[[j]],
+                                                    Y = Ylist[[j]],
+                                                    ori_Trt = Trtlist[[j]],
+                                                    P = Plist[[j]],
+                                                    type = typelist[[j]]),
+                                               contrast_builder_control))
+  }
+
 
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
                                            unique_rule = unique_rule)
@@ -272,12 +280,25 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       left_Plist[[j]] = Plist[[j]][folds_index[[j]][[k]]]
     }
 
-    cv_Conlist = mapply(contrast_builder, X = cv_Xlist, Y = cv_Ylist,
-                     ori_Trt = cv_Trtlist, P = cv_Plist, type = typelist,
-                     MoreArgs = list(response_model = "lasso"), SIMPLIFY = FALSE)
-    left_Conlist = mapply(contrast_builder, X = left_Xlist, Y = left_Ylist,
-                      ori_Trt = left_Trtlist, P = left_Plist, type = typelist,
-                      MoreArgs = list(response_model = "lasso"), SIMPLIFY = FALSE)
+    cv_Conlist = vector("list", q)
+    left_Conlist = vector("list", q)
+
+    for (j in 1:q){
+
+      cv_Conlist[[j]] = do.call(contrast_builder, c(list(X = cv_Xlist[[j]],
+                                                         Y = cv_Ylist[[j]],
+                                                         ori_Trt = cv_Trtlist[[j]],
+                                                         P = cv_Plist[[j]],
+                                                         type = typelist[[j]]),
+                                                    contrast_builder_control))
+
+      left_Conlist[[j]] = do.call(contrast_builder, c(list(X = left_Xlist[[j]],
+                                                           Y = left_Ylist[[j]],
+                                                           ori_Trt = left_Trtlist[[j]],
+                                                           P = left_Plist[[j]],
+                                                           type = typelist[[j]]),
+                                                      contrast_builder_control))
+    }
 
     cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, unique_rule = unique_rule)
     cv_modelYlist = cv_standardized_data$modelYlist

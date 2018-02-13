@@ -1,7 +1,7 @@
 #' @export
 
-contrast_builder = function(X, Y, ori_Trt, P, response_model = c("linear", "lasso"),
-                            type = c("continuous", "binary")){
+contrast_builder = function(X, Y, ori_Trt, P, response_model = c("lasso", "linear"),
+                            type = c("continuous", "binary"), contrast_builder_folds = 3){
 
   type = match.arg(type)
   response_model = match.arg(response_model)
@@ -16,11 +16,13 @@ contrast_builder = function(X, Y, ori_Trt, P, response_model = c("linear", "lass
 
   if (response_model == "lasso"){
     if (type == "continuous"){
-      lasmod = cv.glmnet(y = Y, x = CbX, family = "gaussian", nfolds = 3)
+      lasmod = cv.glmnet(y = Y, x = CbX, family = "gaussian",
+                         nfolds = contrast_builder_folds)
       Trteff0 = predict(lasmod, newx = CbX0, s = "lambda.min")
       Trteff1 = predict(lasmod, newx = CbX1, s = "lambda.min")
     } else if (type == "binary") {
-      lasmod = cv.glmnet(y = Y, x = CbX, family = "binomial", nfolds = 3)
+      lasmod = cv.glmnet(y = Y, x = CbX, family = "binomial",
+                         nfolds = contrast_builder_folds)
       Trteff0 = predict(lasmod, newx = CbX0, s = "lambda.min")
       Trteff0 = exp(Trteff0) / (1 + exp(Trteff0))
       Trteff1 = predict(lasmod, newx = CbX1, s = "lambda.min")
