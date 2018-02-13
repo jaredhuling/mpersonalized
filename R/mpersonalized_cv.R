@@ -31,6 +31,9 @@
 #' @param cv_folds number of folds needed for cross-validation, default is 5
 #' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
 #' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
+#' @param contrast_builder_control a list of parameters which control the contrast building process. In contrast_builder_control,
+#' the following parameters could be supplied: response_model, this could be "lasso" or "linear"; contrast_builder_folds,
+#' the number of folds used in cross validation when response_model = "lasso".
 #' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
 #' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
 #' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided

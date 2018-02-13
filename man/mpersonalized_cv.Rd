@@ -14,7 +14,7 @@ mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   length(lambda2), 10),
   num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda),
   length(unique_rule_lambda), 50), alpha = NULL, unique_rule = FALSE,
-  cv_folds = 5, admm_control = NULL)
+  cv_folds = 5, admm_control = NULL, contrast_builder_control = NULL)
 }
 \arguments{
 \item{problem}{a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
@@ -63,6 +63,10 @@ each study is treated as randomized trial and the corresponding propensity score
 
 \item{admm_control}{a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
 abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.}
+
+\item{contrast_builder_control}{a list of parameters which control the contrast building process. In contrast_builder_control,
+the following parameters could be supplied: response_model, this could be "lasso" or "linear"; contrast_builder_folds,
+the number of folds used in cross validation when response_model = "lasso".}
 
 \item{typlelist}{a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 Each element should be "continuous" or "binary".}
