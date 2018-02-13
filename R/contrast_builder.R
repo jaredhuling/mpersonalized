@@ -29,7 +29,7 @@ contrast_builder = function(X, Y, ori_Trt, P, response_model = c("lasso", "linea
       Trteff1 = exp(Trteff1) / (1 + exp(Trteff1))
     }
   } else if (response_model == "linear"){
-    dat = data.frame(y = y, x = CbX)
+    dat = data.frame(y = Y, x = CbX)
     if (type == "continuous")
       glmmod = glm(y ~ ., data = dat, family = gaussian())
     if (type == "binary")
