@@ -17,12 +17,12 @@ contrast_builder = function(X, Y, ori_Trt, P, response_model = c("lasso", "linea
   if (response_model == "lasso"){
     if (type == "continuous"){
       lasmod = cv.glmnet(y = Y, x = CbX, family = "gaussian",
-                         nfolds = contrast_builder_folds)
+                         nfolds = contrast_builder_folds, nlambda = 10)
       Trteff0 = predict(lasmod, newx = CbX0, s = "lambda.min")
       Trteff1 = predict(lasmod, newx = CbX1, s = "lambda.min")
     } else if (type == "binary") {
       lasmod = cv.glmnet(y = Y, x = CbX, family = "binomial",
-                         nfolds = contrast_builder_folds)
+                         nfolds = contrast_builder_folds, nlambda = 10)
       Trteff0 = predict(lasmod, newx = CbX0, s = "lambda.min")
       Trteff0 = exp(Trteff0) / (1 + exp(Trteff0))
       Trteff1 = predict(lasmod, newx = CbX1, s = "lambda.min")
