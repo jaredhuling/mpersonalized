@@ -1,7 +1,7 @@
 #' @export
 
 contrast_builder = function(X, Y, ori_Trt, P, response_model = c("lasso", "linear"),
-                            type = c("continuous", "binary"), contrast_builder_folds = 3){
+                            type = c("continuous", "binary"), contrast_builder_folds = 10){
 
   type = match.arg(type)
   response_model = match.arg(response_model)
