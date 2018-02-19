@@ -1,3 +1,5 @@
+#' @export
+
 unique_rule_lasso_method = function(modelYlist, modelXlist, Ybar, Xbar, Xsd, lambda){
 
   x = do.call(rbind, modelXlist)
