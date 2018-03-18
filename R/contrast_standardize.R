@@ -1,5 +1,5 @@
-contrast_standardize = function(Conlist, Xlist, unique_rule){
-  if (unique_rule == FALSE){
+contrast_standardize = function(Conlist, Xlist, single_rule){
+  if (single_rule == FALSE){
     sConlist = lapply(Conlist, function(y) as.numeric(y > 0))
     Wlist = lapply(Conlist, abs)
 
