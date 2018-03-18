@@ -2,18 +2,18 @@
 #' @param modelXlist the Xlist in contrast framework after standardization
 #' @param modelYlist the Ylist in contrast framework after standardization
 #' @param penalty penalty type
-#' @param unique_rule whether a unique treatment rule is required
+#' @param single_rule whether a single treatment rule is required
 #' @import glmnet SGL Matrix genlasso
 #'
 #' @return estimated lambda for required penalty if not provided
 #' @export
 
-lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha,
-                            num_lambda1, num_lambda2, num_unique_rule_lambda){
+lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
+                            num_lambda1, num_lambda2, num_single_rule_lambda){
   lambda_estimate = NULL
 
   #need to estimate lambda1?
-  if (unique_rule == FALSE &
+  if (single_rule == FALSE &
       penalty != "fused"){
 
     q = length(modelXlist)
@@ -34,7 +34,7 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha,
   }
 
   #need to estimate lambda2?
-  if (unique_rule == FALSE &
+  if (single_rule == FALSE &
       penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
 
     q = length(modelXlist)
@@ -59,8 +59,8 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha,
   }
 
 
-  #need to estimate unique_rule_lambda?
-  if (unique_rule == TRUE){
+  #need to estimate single_rule_lambda?
+  if (single_rule == TRUE){
     x = do.call(rbind, modelXlist)
     y = unlist(modelYlist)
     total_n = length(y)
@@ -69,10 +69,10 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, unique_rule, alpha,
 
     lasso_lambda = glmnet(x = x, y = y, family = "gaussian",
                          standardize = FALSE, intercept  = FALSE,
-                         nlambda = num_unique_rule_lambda)$lambda
-    unique_rule_lambda = lasso_lambda
+                         nlambda = num_single_rule_lambda)$lambda
+    single_rule_lambda = lasso_lambda
 
-    lambda_estimate$unique_rule_lambda = unique_rule_lambda
+    lambda_estimate$single_rule_lambda = single_rule_lambda
   }
 
   return(lambda_estimate)
