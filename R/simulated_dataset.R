@@ -42,11 +42,12 @@
 #'
 #' @examples
 #' set.seed(123)
-#' sim_dat  = simulated_dataset(200, problem = "meta-analysis)
+#' sim_dat  = simulated_dataset(200, problem = "meta-analysis")
 #' str(sim_dat$Xlist)
 #' str(sim_dat$Ylist)
 #' str(sim_dat$Trtlist)
 #' set.seed(NULL)
+#'
 #' @export
 
 simulated_dataset = function(n,

@@ -53,3 +53,12 @@ For \code{problem = "meta-analysis"}, baseline covariates are generated independ
 for each study; for \code{problem = "multiple outcomes"}, baseline covariates are
 the same across different outcomes.
 }
+\examples{
+set.seed(123)
+sim_dat  = simulated_dataset(200, problem = "meta-analysis")
+str(sim_dat$Xlist)
+str(sim_dat$Ylist)
+str(sim_dat$Trtlist)
+set.seed(NULL)
+
+}
