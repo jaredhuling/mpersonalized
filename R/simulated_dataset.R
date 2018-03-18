@@ -2,7 +2,7 @@
 #'
 #' @description Generate a simulated dataset, which could be used to demonstrate the
 #' features of the mpersonalized package.
-#' @param n Sample size of the simulated dataset
+#' @param n Sample size for each study/outcome.
 #' @param problem A character string specified what problem the simulated dataset is
 #' generated for. \code{problem} can be set to "meta-analysis" or "multiple outcomes".
 #' @details In the simulated dataset, outcomes are generated from the model
@@ -39,6 +39,14 @@
 #' \item{Trt}{a vector denoting the treatment and coded as 0 or 1)}
 #' \item{B}{the coefficient matrix containing \eqn{\delta_0}, \eqn{\bm{\delta}},
 #' \eqn{\theta_0} and \eqn{\bm{\theta}}}
+#'
+#' @examples
+#' set.seed(123)
+#' sim_dat  = simulated_dataset(200, problem = "meta-analysis)
+#' str(sim_dat$Xlist)
+#' str(sim_dat$Ylist)
+#' str(sim_dat$Trtlist)
+#' set.seed(NULL)
 #' @export
 
 simulated_dataset = function(n,

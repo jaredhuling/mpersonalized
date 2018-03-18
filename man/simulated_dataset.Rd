@@ -7,7 +7,7 @@
 simulated_dataset(n, problem = c("meta-analysis", "multiple outcomes"))
 }
 \arguments{
-\item{n}{Sample size of the simulated dataset}
+\item{n}{Sample size for each study/outcome.}
 
 \item{problem}{A character string specified what problem the simulated dataset is
 generated for. \code{problem} can be set to "meta-analysis" or "multiple outcomes".}
