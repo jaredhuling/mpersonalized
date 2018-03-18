@@ -2,11 +2,14 @@ Package: mpersonalized
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Chensheng Kuang
+Maintainer: Chensheng Kuang <ckuang@wisc.edu>
+Description: Implements a general framework to solve the problem of personalized medicine 
+    in meta-analysis and multiple outcomes. This framework allows either separate rules 
+    for each study/outcome or a single rule for all the studies/outcomes, depending on the 
+    requirement of user. A flexible choice of penalty functions to increase estimation 
+    efficiency is also provided.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
