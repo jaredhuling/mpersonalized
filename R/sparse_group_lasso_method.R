@@ -1,5 +1,3 @@
-#' @export
-
 sparse_group_lasso_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda, alpha){
 
   q = length(modelXlist)

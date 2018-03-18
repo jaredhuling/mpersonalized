@@ -1,5 +1,3 @@
-#' @export
-
 meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda1, lambda2, alpha, admm_control){
 
   q = length(modelXlist)

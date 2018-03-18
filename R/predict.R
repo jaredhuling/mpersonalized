@@ -15,11 +15,11 @@
 predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 
   q = mp$number_studies
-  unique_rule = mp$unique_rule
+  single_rule = mp$single_rule
 
   if (!is.null(newx)){
     #When the newx is provided
-    if (unique_rule == TRUE){
+    if (single_rule == TRUE){
 
       benefit_score = mapply(function(intercept, beta) intercept + newx %*% beta,
                              intercept = mp$interceptlist, beta = lapply(mp$betalist, function(x) replicate(q, x)),
@@ -70,7 +70,7 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
     benefit_score = replicate(length(mp$betalist), list())
     treatment = replicate(length(mp$betalist), list())
 
-    if (unique_rule == TRUE){
+    if (single_rule == TRUE){
 
       for (i in 1:length(mp$betalist)){
 
@@ -126,11 +126,11 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){
 
   q = mp_cv$number_studies
-  unique_rule = mp_cv$unique_rule
+  single_rule = mp_cv$single_rule
 
   if (!is.null(newx)){
     #when newx is provided
-    if (unique_rule == TRUE){
+    if (single_rule == TRUE){
 
       benefit_score = mp_cv$intercept + newx %*% replicate(q, mp_cv$beta)
       treatment = ifelse(benefit_score > 0.5, 1, 0)
@@ -169,7 +169,7 @@ predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){
     benefit_score = replicate(q, list())
     treatment = replicate(q, list())
 
-    if (unique_rule == TRUE){
+    if (single_rule == TRUE){
 
       benefit_score = mapply(function(study_intercept, study_x, study_beta) study_intercept + study_x %*% study_beta,
                              study_x = Xlist,

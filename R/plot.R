@@ -8,22 +8,22 @@
 #' @param mp the 'mp' class object returned by \code{mpersonalzied} function
 #' @param ind1 the index of the lambda1 if different rules are used
 #' @param ind2 the index of the lambda2 if different rules are used
-#' @param unique_ind the index of the unique_rule_lambda if an unique rule is used
+#' @param single_ind the index of the single_rule_lambda if an single rule is used
 #'
 #' @import ggplot2 gridExtra
 #' @return a list object with \eqn{k}th element denoting the plot of study k
 #' @export
-plot.mp = function(mp, ind1, ind2, unique_ind){
+plot.mp = function(mp, ind1, ind2, single_ind){
 
   Ylist = mp$Ylist
   Trtlist = mp$Trtlist
-  unique_rule = mp$unique_rule
+  single_rule = mp$single_rule
   q = mp$number_studies
   penalty = mp$penalty
 
-  if (unique_rule == TRUE){
+  if (single_rule == TRUE){
 
-    pred = predict(mp)$treatment[[unique_ind]]
+    pred = predict(mp)$treatment[[single_ind]]
 
   } else {
 

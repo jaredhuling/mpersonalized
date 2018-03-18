@@ -1,5 +1,3 @@
-#' @export
-
 genlassoD<-function(lambda2, lambda3, q){
   H = NULL
 

@@ -22,12 +22,12 @@
 #' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 #'  Each element should be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
-#'  "lasso+fused", "GL+fused", "SGL+fused". For unique rule, the penalty could be "none" or "lasso".
+#'  "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
 #' @param lambda1 lambda1 supplied in the framework when different rules are used.
 #' @param lambda2 lambda2 supplied in the framework when different rules are used.
 #' @param alpha alpha in the framework when different rules are used.
-#' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
-#' @param unique_rule a logical value, whether a unique treatment rule is required
+#' @param single_rule_lambda \eqn{\lambda} when single rule is used.
+#' @param single_rule a logical value, whether a single treatment rule is required
 #' @param cv_folds number of folds needed for cross-validation, default is 5
 #' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
 #' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
@@ -36,7 +36,7 @@
 #' the number of folds used in cross validation when response_model = "lasso".
 #' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
 #' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
-#' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided
+#' @param num_single_rule_lambda length of the single_rule_lambda sequence and default to be 50 if single_rule_lambda is not provided
 #' @import glmnet SGL caret Matrix
 #' @return an S3 object of class "mp_cv", which contains the information of the model with the best fitted lambda. It can be supplied to the predict function.
 #' @export
@@ -47,11 +47,11 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
                             penalty = c("lasso", "GL", "SGL", "fused",
                                       "lasso+fused", "GL+fused", "SGL+fused"),
-                            lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
+                            lambda1 = NULL, lambda2 = NULL, single_rule_lambda = NULL,
                             num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
                             num_lambda2 = ifelse(!is.null(lambda2), length(lambda2),10),
-                            num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda), length(unique_rule_lambda), 50),
-                            alpha = NULL, unique_rule = FALSE, cv_folds = 5,
+                            num_single_rule_lambda = ifelse(!is.null(single_rule_lambda), length(single_rule_lambda), 50),
+                            alpha = NULL, single_rule = FALSE, cv_folds = 5,
                             admm_control = NULL,
                             contrast_builder_control = NULL){
 
@@ -113,29 +113,29 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
 
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
-                                           unique_rule = unique_rule)
+                                           single_rule = single_rule)
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
 
   #check whether the information provided is correct and set up the value for lambdas if not provided
-  if (unique_rule == TRUE){
+  if (single_rule == TRUE){
 
     Ybar = standardized_data$Ybar
     Xbar = standardized_data$Xbar
     Xsd = standardized_data$Xsd
 
     if (penalty != "lasso")
-      stop("When unique rule is required, the penalty must be lasso!(for penalty = none, use function 'mpersonalized' instead.")
+      stop("When single rule is required, the penalty must be lasso!(for penalty = none, use function 'mpersonalized' instead.")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
-      warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
+      warning("When single rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
 
-    if (is.null(unique_rule_lambda)){
+    if (is.null(single_rule_lambda)){
       lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                       penalty = penalty, unique_rule = unique_rule,
-                                       num_unique_rule_lambda = num_unique_rule_lambda)
+                                       penalty = penalty, single_rule = single_rule,
+                                       num_single_rule_lambda = num_single_rule_lambda)
 
-      unique_rule_lambda = lambda_default$unique_rule_lambda
+      single_rule_lambda = lambda_default$single_rule_lambda
     }
 
   } else {
@@ -144,8 +144,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     Xbarlist = standardized_data$Xbarlist
     Xsdlist = standardized_data$Xsdlist
 
-    if (!is.null(unique_rule_lambda))
-      warning("When unique rule = FALSE, the value for unique_rule_lambda is ignored!")
+    if (!is.null(single_rule_lambda))
+      warning("When single rule = FALSE, the value for single_rule_lambda is ignored!")
 
     if (penalty == "none")
       stop("For penalty = none, use function 'mpersonalized' instead.")
@@ -193,7 +193,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1) | is.null(lambda2)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, num_lambda2 = num_lambda2)
 
         if (is.null(lambda1))
@@ -241,7 +241,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1)
 
         lambda1 = lambda_default$lambda1
@@ -253,8 +253,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
   folds_index = lapply(Xlist, function(x) createFolds(1:dim(x)[1], k = cv_folds))
 
   #determine the dimension for the cost for tuning penalty parameters
-  if (unique_rule == TRUE){
-    tune_cost = numeric(length(unique_rule_lambda))
+  if (single_rule == TRUE){
+    tune_cost = numeric(length(single_rule_lambda))
   } else {
     if (penalty %in% c("lasso", "GL", "SGL")){
       tune_cost = numeric(length(lambda1))
@@ -303,7 +303,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                                       contrast_builder_control))
     }
 
-    cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, unique_rule = unique_rule)
+    cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, single_rule = single_rule)
     cv_modelYlist = cv_standardized_data$modelYlist
     cv_modelXlist = cv_standardized_data$modelXlist
 
@@ -315,17 +315,17 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     left_adj_Wlist = mapply(function(w, dataw) w / dataw, w = left_Wlist,
                        dataw = left_dataWlist, SIMPLIFY = FALSE)
 
-    if (unique_rule == TRUE){
+    if (single_rule == TRUE){
       cv_Ybar = cv_standardized_data$Ybar
       cv_Xbar = cv_standardized_data$Xbar
       cv_Xsd = cv_standardized_data$Xsd
 
-      cv_model = unique_rule_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
-                                          Ybar = cv_Ybar, Xbar = cv_Xbar, Xsd = cv_Xsd, lambda = unique_rule_lambda)
+      cv_model = single_rule_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
+                                          Ybar = cv_Ybar, Xbar = cv_Xbar, Xsd = cv_Xsd, lambda = single_rule_lambda)
       cv_interceptlist = cv_model$interceptlist
       cv_betalist = cv_model$betalist
 
-      for (ind in 1:length(unique_rule_lambda))
+      for (ind in 1:length(single_rule_lambda))
         tune_cost[ind] = tune_cost[ind] + sum(unlist(mapply(function(w, y, x) sum(w * (y - cv_interceptlist[[ind]] - x %*% cv_betalist[[ind]]) ^ 2),
                                                             w = left_adj_Wlist, y = left_sConlist, x = left_Xlist, SIMPLIFY = FALSE)))
 
@@ -369,19 +369,19 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
   #for the whole data set
 
-  if (unique_rule == TRUE){
+  if (single_rule == TRUE){
 
     Ybar = standardized_data$Ybar
     Xbar = standardized_data$Xbar
     Xsd = standardized_data$Xsd
 
-    full_model = unique_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
-                                          Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = unique_rule_lambda)
+    full_model = single_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+                                          Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda)
 
     opt_ind = which.min(tune_cost)
     model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
-                      unique_rule_lambda = unique_rule_lambda,
-                      opt_unique_rule_lambda = unique_rule_lambda[opt_ind], penalty = "lasso", unique_rule = TRUE,
+                      single_rule_lambda = single_rule_lambda,
+                      opt_single_rule_lambda = single_rule_lambda[opt_ind], penalty = "lasso", single_rule = TRUE,
                       number_covariates = p, number_studies = q,
                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -403,7 +403,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         iters = full_model$iterslist[[1]],
                         lambda1 = lambda1, lambda2 = lambda2,
                         opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2],
-                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -418,7 +418,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
                         lambda1 = lambda1, lambda2 = lambda2,
                         opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
-                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 

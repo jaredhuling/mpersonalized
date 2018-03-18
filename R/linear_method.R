@@ -1,5 +1,3 @@
-#' @export
-
 linear_method = function(Conlist, Xlist){
 
   sConlist = lapply(Conlist, function(y) as.numeric(y > 0))

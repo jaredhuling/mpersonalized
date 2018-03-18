@@ -1,6 +1,6 @@
 #' @export
 
-unique_rule_linear_method = function(Conlist, Xlist){
+single_rule_linear_method = function(Conlist, Xlist){
 
   sConlist = lapply(Conlist, function(y) as.numeric(y > 0))
   Wlist = lapply(Conlist, function(y) abs(y))

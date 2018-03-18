@@ -1,12 +1,14 @@
-#' @title Meta-analysis/Multiple Outcomes for Personalized Medicine
+#' @title A General Framework to Solve Personalized Medicine in the Settings of Meta-analysis/Multiple Outcomes
 #'
-#' @details Assume the total number of studies is \eqn{K}. This function is aimed to solve meta-analysis/multiple outcomes problems for personalized medicine based on the following framework:
+#' @details Assume the total number of studies/outcomes is \eqn{K}. Denote the contrast
+#' estimator for the \eqn{k}th study/outcome as \eqn{\hat{C}_k}. This function is aimed
+#' to solve meta-analysis/multiple outcomes problems for personalized medicine based on the following framework:
 #' \deqn{ \min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2 + h(g_1,\dots,g_K)}
 #' Here the regularization function \eqn{h} is of the form of a sum of sparse group lasso and fused lasso penalty
 #' \deqn{h = (1-\alpha)\lambda_1\sqrt{q} \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_2+\alpha \lambda_1  \sum_{j=1}^p \|\boldsymbol{\beta_j}\|_1+ \lambda_2 \sum_{j=1}^p \sum_{1\le a < b \le K}|\beta_{ja}-\beta_{jb}|}
 #' where \eqn{\boldsymbol{\beta_j}=(\beta_{j1},\dots,\beta_{jK})}
 #'
-#' If we would like a unique rule to be obtained, we let \eqn{g_1 = \dots= g_K} and solve the following question instead
+#' If we would like a single rule to be obtained, we let \eqn{g_1 = \dots= g_K} and solve the following question instead
 #' \deqn{\min_{g} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g(X_{i})\bigr]^2 + h(g_1,\dots,g_K) + \lambda_{uni} \|\beta\|_1}
 #'
 #' If we want different rules, by setting \eqn{\lambda_1, \lambda_2, \alpha} differently, different penalties can be obtained.
@@ -21,7 +23,7 @@
 #' \item If \eqn{\lambda_1, \lambda_2 = 0}, there is no penalty.
 #' }
 #'
-#' If we want unique rule,
+#' If we want single rule,
 #' \itemize{
 #' \item If \eqn{\lambda \ne 0}, the penalty is "lasso".
 #' \item If \eqn{\lambda = 0}, there is no penalty.
@@ -45,12 +47,12 @@
 #' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
 #'  Each element should be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
-#'  "lasso+fused", "GL+fused", "SGL+fused". For unique rule, the penalty could be "none" or "lasso".
+#'  "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
 #' @param lambda1 lambda1 supplied in the framework when different rules are used.
 #' @param lambda2 lambda2 supplied in the framework when different rules are used.
 #' @param alpha alpha in the framework when different rules are used.
-#' @param unique_rule_lambda \eqn{\lambda} when unique rule is used.
-#' @param unique_rule a logical value, whether a unique treatment rule is required
+#' @param single_rule_lambda \eqn{\lambda} when single rule is used.
+#' @param single_rule a logical value, whether a single treatment rule is required
 #' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
 #' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
 #' @param contrast_builder_control a list of parameters which control the contrast building process. In contrast_builder_control,
@@ -58,7 +60,7 @@
 #' the number of folds used in cross validation when response_model = "lasso".
 #' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
 #' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
-#' @param num_unique_rule_lambda length of the unique_rule_lambda sequence and default to be 50 if unique_rule_lambda is not provided
+#' @param num_single_rule_lambda length of the single_rule_lambda sequence and default to be 50 if single_rule_lambda is not provided
 #' @import glmnet SGL Matrix
 #'
 #' @return an S3 object of class "mp", which contains the information of the fitted model. It could be supplied
@@ -71,11 +73,11 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                          typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
                          penalty = c("none", "lasso", "GL", "SGL", "fused",
                                      "lasso+fused", "GL+fused", "SGL+fused"),
-                         lambda1 = NULL, lambda2 = NULL, unique_rule_lambda = NULL,
+                         lambda1 = NULL, lambda2 = NULL, single_rule_lambda = NULL,
                          num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
                          num_lambda2 = ifelse(!is.null(lambda2), length(lambda2),10),
-                         num_unique_rule_lambda = ifelse(!is.null(unique_rule_lambda), length(unique_rule_lambda), 50),
-                         alpha = NULL, unique_rule = FALSE,
+                         num_single_rule_lambda = ifelse(!is.null(single_rule_lambda), length(single_rule_lambda), 50),
+                         alpha = NULL, single_rule = FALSE,
                          admm_control = NULL,
                          contrast_builder_control = NULL){
 
@@ -137,50 +139,50 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
 
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
-                                           unique_rule = unique_rule)
+                                           single_rule = single_rule)
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
 
-  if (unique_rule == TRUE){
+  if (single_rule == TRUE){
 
     Ybar = standardized_data$Ybar
     Xbar = standardized_data$Xbar
     Xsd = standardized_data$Xsd
 
     if (penalty != "lasso" & penalty != "none")
-      stop("When unique rule = TRUE, the penalty must be lasso or none with default as none!")
+      stop("When single rule = TRUE, the penalty must be lasso or none with default as none!")
 
     if (!is.null(lambda1) | !is.null(lambda2) | !is.null(alpha))
-      warning("When unique rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
+      warning("When single rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
 
     if (penalty == "lasso"){
 
-      if (is.null(unique_rule_lambda)){
+      if (is.null(single_rule_lambda)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule,
-                                         num_unique_rule_lambda = num_unique_rule_lambda)
+                                         penalty = penalty, single_rule = single_rule,
+                                         num_single_rule_lambda = num_single_rule_lambda)
 
-        unique_rule_lambda = lambda_default$unique_rule_lambda
+        single_rule_lambda = lambda_default$single_rule_lambda
       }
 
-      full_model = unique_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
-                                            Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = unique_rule_lambda)
+      full_model = single_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+                                            Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
-                        unique_rule_lambda = unique_rule_lambda,
-                        penalty = penalty, unique_rule = TRUE,
+                        single_rule_lambda = single_rule_lambda,
+                        penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
     } else if (penalty == "none"){
 
-      if (!is.null(unique_rule_lambda))
-        warning("When unique rule = TRUE and penalty = none, the value for unique_rule_lambda are ignored!")
+      if (!is.null(single_rule_lambda))
+        warning("When single rule = TRUE and penalty = none, the value for single_rule_lambda are ignored!")
 
-      full_model = unique_rule_linear_method(Conlist = Conlist, Xlist = Xlist)
+      full_model = single_rule_linear_method(Conlist = Conlist, Xlist = Xlist)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
-                        penalty = penalty, unique_rule = TRUE,
+                        penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
     }
@@ -191,8 +193,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     Xbarlist = standardized_data$Xbarlist
     Xsdlist = standardized_data$Xsdlist
 
-    if (!is.null(unique_rule_lambda))
-        warning("When unique rule = FALSE, the value for unique_rule_lambda is ignored!")
+    if (!is.null(single_rule_lambda))
+        warning("When single rule = FALSE, the value for single_rule_lambda is ignored!")
 
     if (penalty == "none"){
 
@@ -202,7 +204,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       full_model = linear_method(Conlist = Conlist, Xlist = Xlist)
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
-                        penalty = penalty, unique_rule = FALSE,
+                        penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -250,7 +252,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1) | is.null(lambda2)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, num_lambda2 = num_lambda2)
 
         if (is.null(lambda1))
@@ -267,7 +269,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         iterslist = full_model$iterslist,
                         lambda1 = lambda1, lambda2 = lambda2,
-                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -309,7 +311,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
-                                         penalty = penalty, unique_rule = unique_rule, alpha = alpha,
+                                         penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1)
 
         lambda1 = lambda_default$lambda1
@@ -322,7 +324,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         lambda1 = lambda1, lambda2 = lambda2,
-                        alpha = alpha, penalty = penalty, unique_rule = FALSE,
+                        alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
     }

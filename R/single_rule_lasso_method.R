@@ -1,4 +1,4 @@
-unique_rule_lasso_method = function(modelYlist, modelXlist, Ybar, Xbar, Xsd, lambda){
+single_rule_lasso_method = function(modelYlist, modelXlist, Ybar, Xbar, Xsd, lambda){
 
   x = do.call(rbind, modelXlist)
   y = unlist(modelYlist)
