@@ -29,7 +29,7 @@
 #' For \code{problem = "meta-analysis"},
 #' \item{Xlist}{a list object with \eqn{k}th element denoting the baseline covariate matrix of \eqn{k}th study }
 #' \item{Ylist}{a list object with \eqn{k}th element denoting the response vector of \eqn{k}th study}
-#' \item{Trtlist}{a list object with \eqn{k}th element denoting the treatment vector of \end{k}th study and coded as 0 or 1}
+#' \item{Trtlist}{a list object with \eqn{k}th element denoting the treatment vector of \eqn{k}th study and coded as 0 or 1}
 #' \item{B}{the coefficient matrix containing \eqn{\delta_0}, \eqn{\bm{\delta}},
 #' \eqn{\theta_0} and \eqn{\bm{\theta}}}
 #'

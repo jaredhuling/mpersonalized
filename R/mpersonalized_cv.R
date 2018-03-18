@@ -1,44 +1,76 @@
-#' @title Meta-analysis/Multiple Outcomes for Personalized Medicine with Cross Validation
+#' @title Cross Validation for \code{mpersonalized}
 #'
 #' @details This function implments \code{mpersonalized} but use cross validatation for the tuning of penalty parameter.
 #'  The optimal penalty parameter is selected by minimizing \deqn{\sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2}
 #'  in the leave-out fold, where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is separately estimated from the training set.
 #'
-#' @param problem a character specifiy whether you want to solve "meta-analysis" or "multiple outcomes" problem. For "meta-analysis" problem,
-#'  the user should supply \code{Xlist}, \code{Ylist}, \code{Trtlist} and \code{Plist}. For "multiple outcomes" problem,
-#'  the user should supply \code{X}, \code{Ylist}, \code{Trt} and \code{P}.
-#' @param X the covariate matrix that should be supplied when the problem is "multiple outcomes" with rows indicating subjects and columns indicating covariates.
-#' @param Trt the treatment vector that should be supplied when the problem is "multiple outcomes". It should be coded as 0 or 1.
-#' @param P the propensity score vector when the problem is "multiple outcomes". If not supplied, then study is treated as randomzied trial and the propensity
-#'  score is estimated as the proportion of 1's in Trt.
-#' @param Xlist a list object with \eqn{k}th element denoting the covariate matrix of study \eqn{k}. This should be supplied when the problem is
-#'  "meta-analysis".
-#' @param Ylist When the problem is "meta-analysis", \code{Ylist} should be a list object with \eqn{k}th element denoting the response vector of study \eqn{k}. When the
-#'  problem is "multiple outcomes", \code{Ylist} should be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
-#' @param Trtlist  a list object with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1). This should be supplied when the problem is
-#'  "meta-analysis".
-#' @param Plist a list object with \eqn{k}the element denoting the propensity score vector of study \eqn{k}. If not supplied, then
-#'  each study is treated as randomized trial and the corresponding propensity score is estimated as the proportion of 1's in Trt.
-#' @param typlelist a list object with \eqn{k}th element denoting the type of response corresponding to the \eqn{k}th element in the list \code{Ylist}.
-#'  Each element should be "continuous" or "binary".
-#' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
-#'  "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
-#' @param lambda1 lambda1 supplied in the framework when different rules are used.
-#' @param lambda2 lambda2 supplied in the framework when different rules are used.
-#' @param alpha alpha in the framework when different rules are used.
-#' @param single_rule_lambda \eqn{\lambda} when single rule is used.
-#' @param single_rule a logical value, whether a single treatment rule is required
-#' @param cv_folds number of folds needed for cross-validation, default is 5
-#' @param admm_control a list of parameters which control the admm algorithm. In admm_control, the following parameters can be supplied:
-#' abs.tol, absolute tolerance; rel.tol, relative tolerance; maxit, maximum number of iterations; rho, Lagrangian parameter.
-#' @param contrast_builder_control a list of parameters which control the contrast building process. In contrast_builder_control,
-#' the following parameters could be supplied: response_model, this could be "lasso" or "linear"; contrast_builder_folds,
-#' the number of folds used in cross validation when response_model = "lasso".
-#' @param num_lambda1 length of the lambda1 sequence and default to be 10 if lambda1 is not provided
-#' @param num_lambda2 length of the lambda2 sequence and default to be 10 if lambda2 is not provided
-#' @param num_single_rule_lambda length of the single_rule_lambda sequence and default to be 50 if single_rule_lambda is not provided
+#' @param problem A character string specifiy whether the user want to solve "meta-analysis" or
+#' "multiple outcomes" problem. For \code{problem = "meta-analysis"}, the user should also supply
+#' \code{Xlist}, \code{Ylist}, \code{Trtlist}. For \code{problem = "multiple outcomes"},
+#' the user should supply \code{X}, \code{Ylist}, \code{Trt}.
+#' @param X Covariate matrix that should be supplied when \code{problem = "multiple outcomes"}
+#' with rows indicating subjects and columns indicating covariates.
+#' @param Trt Treatment vector that should be supplied when \code{problem = "multiple outcomes"},
+#' which should be coded as 0 or 1.
+#' @param P Propensity score vector when \code{problem = "multiple outcomes"}. If not supplied,
+#' then study is treated as randomzied trial and the propensity score is estimated as the proportion
+#' of 1's in \code{Trt} for every subject.
+#' @param Xlist A list object that should be supplied when \code{problem = "meta-analysis"},
+#' with \eqn{k}th element denoting the covariate matrix of study \eqn{k}.
+#' @param Ylist When \code{problem = "meta-analysis"}, \code{Ylist} should be a list object with \eqn{k}th element
+#' denoting the response vector of study \eqn{k}. When \code{problem = "multiple outcomes"}, \code{Ylist} should
+#' be a list object with \eqn{k}th element denoting the \eqn{k}th outcome.
+#' @param Trtlist A list object that should be supplied when \code{problem = "meta-analysis"},
+#' with \eqn{k}th element denoting the treatment vector of study \eqn{k} (coded as 0 or 1).
+#' @param Plist A list object that should be supplied when \code{problem = "meta-analysis"},
+#' with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
+#' If not supplied, then each study is treated as randomized trial and the corresponding propensity score
+#' is estimated as the proportion of 1's in the \eqn{k}th element of \code{Trtlist} for all subjects.
+#' @param typlelist A list object with \eqn{k}th element denoting the type of outcome corresponding
+#' to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".
+#' @param penalty For different rules, the penalty could be "lasso", "GL", "SGL", "fused",
+#' "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could only be "lasso".
+#' For \code{penalty = "none"}, use function \code{mpersonalized} instead.
+#' User should always input \code{penalty} and then supply correponding penalty parameters sequence
+#' if needed.
+#' @param lambda1 \eqn{\lambda_1} in the framework of different rules. If not supplied, a default
+#' sequence will be computed.
+#' @param lambda2 \eqn{\lambda_2} in the framework of different rules. If not supplied, a default
+#' sequence will be computed.
+#' @param alpha \eqn{\alpha} in the framework of different rules. If not supplied, a default value
+#' will be used depending on \code{penalty}.
+#' @param single_rule_lambda \eqn{\lambda_{single}} in the framework of single rule.
+#' @param single_rule A logical value, whether the single treatment framework is used. Deafult is \code{FALSE}.
+#' @param cv_folds Number of folds needed for cross-validation. Default is 5
+#' @param admm_control A list of parameters which user can specify to control the admm algorithm.
+#' In \code{admm_control}, the following parameters can be supplied:
+#' \code{abs.tol}, absolute tolerance; \code{rel.tol}, relative tolerance; \code{maxit}, maximum number of iterations;
+#' \code{rho}, Lagrangian parameter.
+#' @param contrast_builder_control A list of parameters which user can specify to control estimation of
+#' contrast function. In \code{contrast_builder_control},
+#' the following parameters could be supplied: \code{response_model}, this could be "lasso" or "linear";
+#' \code{contrast_builder_folds}, the number of folds used in cross validation when response_model = "lasso".
+#' @param num_lambda1 If \code{lambda1} is not specified by user, user could still specify the length of the
+#' \code{lambda1} sequence. The default length is 10.
+#' @param num_lambda2 If \code{lambda2} is not specified by user, user could still specify the length of the
+#' \code{lambda2} sequence. The default length is 10.
+#' @param num_single_rule_lambda If \code{single_rule_lambda} is not specified, user could still specify the length
+#' of the \code{single_rule_lambda} sequence. The default length is 50.
+#'
 #' @import glmnet SGL caret Matrix
-#' @return an S3 object of class "mp_cv", which contains the information of the model with the best fitted lambda. It can be supplied to the predict function.
+#'
+#' @return An S3 object of class "mp_cv", which contains the information of the model with the optimal lambda. It can be supplied
+#' to some other functions in mperosnalized package for further analysis or prediction.
+#'
+#' \item{penalty_parameter_sequence} A matrix object with each row denoting a
+#' configuration of the penalty parameters.
+#' \item{opt_penalty_parameter} Optimal penalty parameter chosen by minimizing the cross validation error.
+#' \item{interccept} The vector of intercepts corresponding to the optimal penalty parameter.
+#' \teim{beta} The coefficient matrix corresponding to the optimal penalty parameter.
+#' \item{number_covariates} Number of candidate covariates considered.
+#' \item{number_studies_or_outcomes} Number of studies if \code{problem = "meta-analysis"} or number of outcomes
+#' if \code{problem = "multiple outcomes"}.
+#'
 #' @export
 
 mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
@@ -367,7 +399,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     }
   }
 
-  #for the whole data set
+  #for the complete data set
 
   if (single_rule == TRUE){
 
@@ -379,9 +411,14 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                           Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda)
 
     opt_ind = which.min(tune_cost)
+
+    penalty_parameter_sequence = as.matrix(single_rule_lambda)
+    colnames(penalty_parameter_sequence) = "single_rule_lambda"
+
     model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
-                      single_rule_lambda = single_rule_lambda,
-                      opt_single_rule_lambda = single_rule_lambda[opt_ind], penalty = "lasso", single_rule = TRUE,
+                      penalty_parameter_sequence = penalty_parameter_sequence,
+                      opt_penalty_parameter= as.matrix(penalty_parameter_sequence[opt_ind,]),
+                      penalty = "lasso", single_rule = TRUE,
                       number_covariates = p, number_studies = q,
                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
 
@@ -399,10 +436,19 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                lambda1 = lambda1[opt_ind1], lambda2 = lambda2[opt_ind2], alpha = alpha, admm_control = admm_control)
 
+      penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nalmbda2)
+      colnames(penalty_parameter_sequence) = c("lambda1", "lambda2")
+
+      for (ind1 in 1:length(lambda1))
+        for (ind2 in 1:length(lambda2)){
+          penalty_parameter_sequence[(ind - 1) * nlambda2 + ind2,] = c(lambda1[ind1], lambda2[ind2])
+        }
+
+      opt_penalty_parameter = as.matrix(penalty_parameter_sequencce[(opt_ind1 - 1) * nlambda2 + opt_ind2,])
+
       model_info = list(intercept = full_model$interceptlist[[1]], beta = full_model$betalist[[1]],
-                        iters = full_model$iterslist[[1]],
-                        lambda1 = lambda1, lambda2 = lambda2,
-                        opt_lambda1 = lambda1[opt_ind1], opt_lambda2 = lambda2[opt_ind2],
+                        penalty_parameter_sequence = penalty_parameter_sequence,
+                        opt_penalty_parameter = opt_penalty_parameter,
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
@@ -415,9 +461,12 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       opt_ind = which.min(tune_cost)
 
+      penalty_parameter_sequence = as.matrix(lambda1)
+      colnames(penalty_parameter_sequence) = "lambda1"
+
       model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
-                        lambda1 = lambda1, lambda2 = lambda2,
-                        opt_lambda1 = lambda1[opt_ind], opt_lambda2 = 0,
+                        penalty_parameter_sequence = penalty_parameter_sequence,
+                        opt_penalty_parameter = as.matrix(penalty_parameter_sequence[opt_ind,]),
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)

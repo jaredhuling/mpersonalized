@@ -4,7 +4,7 @@
 \alias{plot.mp}
 \title{Plot for a 'mp' Class Object.}
 \usage{
-\method{plot}{mp}(mp, ind1, ind2, unique_ind)
+\method{plot}{mp}(mp, ind1, ind2, single_ind)
 }
 \arguments{
 \item{mp}{the 'mp' class object returned by \code{mpersonalzied} function}
@@ -13,7 +13,7 @@
 
 \item{ind2}{the index of the lambda2 if different rules are used}
 
-\item{unique_ind}{the index of the unique_rule_lambda if an unique rule is used}
+\item{single_ind}{the index of the single_rule_lambda if an single rule is used}
 }
 \value{
 a list object with \eqn{k}th element denoting the plot of study k

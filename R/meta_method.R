@@ -25,11 +25,16 @@ meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lamb
   admm_lambda2 = ifelse(lambda1 != 0, lambda1 * alpha, 0)
   admm_lambda3 = lambda2
 
+  penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nalmbda2)
+  colnames(penalty_parameter_sequence) = c("lambda1", "lambda2")
+
   for (ind1 in 1:nlambda1)
     for (ind2 in 1:nlambda2){
       pen1 = admm_lambda1[ind1]
       pen2 = admm_lambda2[ind1]
       pen3 = admm_lambda3[ind2]
+
+      penalty_parameter_sequence[(ind1 - 1) * nlambda2 + ind2,] = c(lambda1[ind1], lambda2[ind2])
 
       result = do.call(admm_optim, c(admm_control, list(x = x, y = y, p = p, q = q,
                                                         lambda1 = pen1,lambda2 = pen2, lambda3 = pen3)))
@@ -43,5 +48,8 @@ meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lamb
       iterslist[[(ind1 - 1) * nlambda2 + ind2]] = result$iters
     }
 
-  return(list(interceptlist = interceptlist, betalist = betalist, iterslist = iterslist))
+  return(list(interceptlist = interceptlist,
+              betalist = betalist,
+              iterslist = iterslist,
+              penalty_parameter_sequence = penalty_parameter_sequence))
 }

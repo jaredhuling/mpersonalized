@@ -4,8 +4,8 @@
 \alias{lambda_estimate}
 \title{Default Penalty Parameter Sequence if Not Given}
 \usage{
-lambda_estimate(modelXlist, modelYlist, penalty, unique_rule, alpha,
-  num_lambda1, num_lambda2, num_unique_rule_lambda)
+lambda_estimate(modelXlist, modelYlist, penalty, single_rule, alpha,
+  num_lambda1, num_lambda2, num_single_rule_lambda)
 }
 \arguments{
 \item{modelXlist}{the Xlist in contrast framework after standardization}
@@ -14,7 +14,7 @@ lambda_estimate(modelXlist, modelYlist, penalty, unique_rule, alpha,
 
 \item{penalty}{penalty type}
 
-\item{unique_rule}{whether a unique treatment rule is required}
+\item{single_rule}{whether a single treatment rule is required}
 }
 \value{
 estimated lambda for required penalty if not provided
