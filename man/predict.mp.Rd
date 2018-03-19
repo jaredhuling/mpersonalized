@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predict.mp}
 \alias{predict.mp}
-\title{Predict for "mp" object}
+\title{Predict for an "mp" Object}
 \usage{
 \method{predict}{mp}(mp, newx = NULL, weight = NULL, overall_rec = TRUE)
 }

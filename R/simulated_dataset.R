@@ -42,7 +42,7 @@
 #'
 #' @examples
 #' set.seed(123)
-#' sim_dat  = simulated_dataset(200, problem = "meta-analysis")
+#' sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
 #' str(sim_dat$Xlist)
 #' str(sim_dat$Ylist)
 #' str(sim_dat$Trtlist)
@@ -66,7 +66,7 @@ simulated_dataset = function(n,
     Xlist = replicate(q, list())
     Ylist = replicate(q, list())
     Trtlist = replicate(q, list())
-    set.seed(sim_seed)
+
     for (j in 1:q){
       X=matrix(rnorm(n*p,0,1),nrow=n)
       X=cbind(rep(1,n),X) #Add Intercept

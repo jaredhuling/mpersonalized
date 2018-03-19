@@ -146,17 +146,17 @@ These arguements corresponds to $\lambda_1$, $\lambda_2$ and $\alpha$ in the pen
 
 If user choose to use default sequence of $\lambda_1$ and $\lambda_2$, then user could choose to specifiy the length of sequence of $\lambda_1$ and $\lambda_2$. The default length is 10 for both $\lambda_1$ and $\lambda_2$.
 
-`unique_rule`:
+`single_rule`:
 
 This argument should be specified to be `TRUE` if user want all the $g$s to be the same, i.e., $g_1 = \dots = g_K$. In this case, $g$ is estimated from the following optimization problem:
 
-$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g(X_{ki})\bigr]^2 + \lambda_{unique}\sum_{j=1}^p\|\beta_j\|_1$$
+$$\min_{g_1,\dots,g_K} \frac{1}{2}\sum_{k=1}^K \sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{ki})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{ki})|}\bigl [1\{\hat{C}_k(X_{ki})>0\}-g(X_{ki})\bigr]^2 + \lambda_{single}\sum_{j=1}^p\|\beta_j\|_1$$
 
-When `unique_rule = TRUE`, the `penalty` function only has two choice: `none` and `lasso`, corresponding to the case $\lambda_{unique} = 0$ and $\lambda_{unique} \ne 0$.
+When `single_rule = TRUE`, the `penalty` function only has two choice: `none` and `lasso`, corresponding to the case $\lambda_{single} = 0$ and $\lambda_{single} \ne 0$.
 
-`unique_rule_lambda`:
+`single_rule_lambda`:
 
-This argument corresponds to $\lambda_{unique}$. It could be leave null to use the default sequence or supplied to use a user specified sequence.
+This argument corresponds to $\lambda_{single}$. It could be leave null to use the default sequence or supplied to use a user specified sequence.
 
 ## `mpersonalized_cv`
 
@@ -176,17 +176,19 @@ We will use the "meta-analysis" problem as our example.
 Based on the penalty user selected, the function will warning and automatically adpat if the supplied penalty parameter is not appropriate.
 
 ```{r test, warning = TRUE, error = TRUE}
-sim_data = simulated_dataset(n = 200, sim_seed = 123, problem = "meta-analysis")
+set.seed(123)
+sim_data = simulated_dataset(n = 200, problem = "meta-analysis")
+set.seed(NULL)
 
 Xlist = sim_data$Xlist; Ylist = sim_data$Ylist; Trtlist = sim_data$Trtlist
 
 model_SGL = mpersonalized(problem = "meta-analysis",
                           Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                           penalty = "SGL", lambda2 = seq(0.01, 0.1, 0.01), 
-                          unique_rule = FALSE)
+                          single_rule = FALSE)
 model_lasso = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "lasso", alpha = 0.5, unique_rule = FALSE)
+                            penalty = "lasso", alpha = 0.5, single_rule = FALSE)
 ```
 
 
@@ -196,21 +198,21 @@ The penalty parameters can be either specified by user or leave it NULL and use 
 ```{r deafult sequence}
 model_lasso1 = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "lasso", unique_rule = FALSE)
+                            penalty = "lasso", single_rule = FALSE)
 model_lasso2 = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "lasso", lambda1 = seq(0.01, 0.1, 0.01), unique_rule = FALSE)
+                            penalty = "lasso", lambda1 = seq(0.01, 0.1, 0.01), single_rule = FALSE)
 model_lasso3 = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "lasso", num_lambda1 = 10, unique_rule = FALSE)
+                            penalty = "lasso", num_lambda1 = 10, single_rule = FALSE)
 ```
 
 The penalty sequence can be withdrawn from the model. For each penalty parameter, a set of coefficients and intercept can be obtained. 
 ```{r result}
 names(model_lasso1)
 
-model_lasso1$lambda1 
-model_lasso2$lambda2
+model_lasso1$penalty_parameter_sequence
+model_lasso2$penalty_parameter_sequence
 
 #To obtain the beta and intercept for the 5th lambda1
 beta = model_SGL$betalist[[5]]; intercept = model_SGL$intercept[[5]]
@@ -223,32 +225,30 @@ print(intercept)
 ```{r cv method, error = TRUE, warning = TRUE}
 model_SGL_cv = mpersonalized_cv(problem = "meta-analysis",
                                 Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                                penalty = "SGL", cv_folds = 5, unique_rule = FALSE)
+                                penalty = "SGL", cv_folds = 5, single_rule = FALSE)
 ```
 
 Different from `mpersonalized`, the output from `mpersonalzied_cv` only has the optimal beta and intercept.
 ```{r cv result}
-model_SGL_cv$lambda1
-model_SGL_cv$lambda2
+model_SGL_cv$penalty_parameter_sequence
 
-model_SGL_cv$opt_lambda1
-model_SGL_cv$opt_lambda2
+model_SGL_cv$opt_penalty_parameter
 
 model_SGL_cv$beta
 model_SGL_cv$intercept
 ```
 
 We could also try fit a single rule for all the studies.
-```{r unique}
-model_unique_lasso_cv = mpersonalized_cv(problem = "meta-analysis",
+```{r single}
+model_single_lasso_cv = mpersonalized_cv(problem = "meta-analysis",
                                          Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                                         penalty = "lasso", unique_rule = TRUE)
+                                         penalty = "lasso", single_rule = TRUE)
 
-model_unique_lasso_cv$unique_rule_lambda
-model_unique_lasso_cv$opt_unique_rule_lambda
+model_single_lasso_cv$penalty_parameter_sequence
+model_single_lasso_cv$opt_penalty_parameter
 
-model_unique_lasso_cv$beta
-model_unique_lasso_cv$intercept
+model_single_lasso_cv$beta
+model_single_lasso_cv$intercept
 ```
 
 ## `predict`
@@ -314,9 +314,9 @@ The object returned from `mpersonalized` or `mpersonalized_cv` function.
 
 The index of the sequence of $\lambda_1$ and $\lambda_2$.
 
-`unique_ind`:
+`single_ind`:
 
-If `unique_rule = TRUE`, then `unique_ind` should be supplied instead of `ind1` and `ind2`.
+If `single_rule = TRUE`, then `single_ind` should be supplied instead of `ind1` and `ind2`.
 
 
 ### Example

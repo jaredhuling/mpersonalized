@@ -17,7 +17,7 @@ mpersonalized(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   admm_control = NULL, contrast_builder_control = NULL)
 }
 \arguments{
-\item{problem}{A character string specifiy whether the user want to solve "meta-analysis" or
+\item{problem}{A character string specifiy whether user want to solve "meta-analysis" or
 "multiple outcomes" problem. For \code{problem = "meta-analysis"}, the user should also supply
 \code{Xlist}, \code{Ylist}, \code{Trtlist}. For \code{problem = "multiple outcomes"},
 the user should supply \code{X}, \code{Ylist}, \code{Trt}.}
@@ -91,15 +91,22 @@ to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or 
 An S3 object of class "mp", which contains the information of the fitted model. It could be supplied
 to some other functions in mperosnalized package for further analysis or prediction.
 
-\item{penalty_parameter_sequence} A matrix object with each row denoting a
-configuration of the penalty parameters.
-\item{interceptlist} A list object with each element denoting a vector of intercepts. The \eqn{k}th element
-corresponds to the \eqn{k}th row in \code{penalty_parameter_sequence}.
-\item{betalist} A list object with each element denoting a coefficient matrix. The \eqn{k}th element
-corresponds to the \eqn{k}th row in \code{penalty_parameter_sequence}.
-\item{number_covariates} Number of candidate covariates considered.
-\item{number_studies_or_outcomes} Number of studies if \code{problem = "meta-analysis"} or number of outcomes
-if \code{problem = "multiple outcomes"}.
+\item{penalty_parameter_sequence}{A matrix object with each row denoting a
+configuration of the penalty parameters.}
+\item{interceptlist}{A list object with each element denoting a vector of intercepts. The \eqn{k}th element
+corresponds to the \eqn{k}th row in \code{penalty_parameter_sequence}.}
+\item{betalist}{A list object with each element denoting a coefficient matrix. The \eqn{k}th element
+corresponds to the \eqn{k}th row in \code{penalty_parameter_sequence}.}
+\item{number_covariates}{Number of candidate covariates considered.}
+\item{number_studies_or_outcomes}{Number of studies if \code{problem = "meta-analysis"} or number of outcomes
+if \code{problem = "multiple outcomes"}.}
+}
+\description{
+This function solves the personalized medicine problem by extending the contrast classificaiton
+framework (Zhang, 2012). By adding proper penalty to the original classification loss, variable selection could be
+implemented and estimation efficiency could be improved. Computation algorithm differs based on the penalty function employed,
+but mainly through ADMM algorithm, glmnet package and SGL package. This function is also flexible enough to let
+user choose whether different classification rules or a single rule should be estimated for multiple studies/outcomes.
 }
 \details{
 Assume the total number of studies/outcomes is \eqn{K} and we denote the contrast
@@ -137,13 +144,13 @@ Depending on the value of \eqn{\lambda_{single}}
 }
 \examples{
 set.seed(123)
-sim_dat  = simulated_dataset(200, problem = "meta-analysis")
+sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
 Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 
 # fit different rules with SGL penalty for this meta-analysis problem
 mp_mod_diff = mpersonalized(problem = "meta-analysis",
-                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                       penalty = "SGL", single_rule = FLASE)
+                            Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                            penalty = "SGL", single_rule = FLASE)
 
 # fir a single rule with lasso penalty
 mp_mod_single = mpersonalized(problem = "meta-analysis",
@@ -151,4 +158,8 @@ mp_mod_single = mpersonalized(problem = "meta-analysis",
                               penalty = "lasso", single_rule = TRUE)
 set.seed(NULL)
 
+}
+\references{
+Zhang, B. and Tsiatis, A. A. and Davidian, M. and Zhang, M. and Laber, E.(2012) \emph{
+Estimating optimal treatment regimes from a classification perspective, Stat, 1(1):103-114.}
 }

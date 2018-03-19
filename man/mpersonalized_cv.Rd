@@ -17,7 +17,7 @@ mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
   cv_folds = 5, admm_control = NULL, contrast_builder_control = NULL)
 }
 \arguments{
-\item{problem}{A character string specifiy whether the user want to solve "meta-analysis" or
+\item{problem}{A character string specifiy whether user want to solve "meta-analysis" or
 "multiple outcomes" problem. For \code{problem = "meta-analysis"}, the user should also supply
 \code{Xlist}, \code{Ylist}, \code{Trtlist}. For \code{problem = "multiple outcomes"},
 the user should supply \code{X}, \code{Ylist}, \code{Trt}.}
@@ -94,17 +94,37 @@ to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or 
 An S3 object of class "mp_cv", which contains the information of the model with the optimal lambda. It can be supplied
 to some other functions in mperosnalized package for further analysis or prediction.
 
-\item{penalty_parameter_sequence} A matrix object with each row denoting a
-configuration of the penalty parameters.
-\item{opt_penalty_parameter} Optimal penalty parameter chosen by minimizing the cross validation error.
-\item{interccept} The vector of intercepts corresponding to the optimal penalty parameter.
-\teim{beta} The coefficient matrix corresponding to the optimal penalty parameter.
-\item{number_covariates} Number of candidate covariates considered.
-\item{number_studies_or_outcomes} Number of studies if \code{problem = "meta-analysis"} or number of outcomes
-if \code{problem = "multiple outcomes"}.
+\item{penalty_parameter_sequence}{A matrix object with each row denoting a configuration of the penalty parameters.}
+\item{opt_penalty_parameter}{Optimal penalty parameter chosen by minimizing the cross validation error.}
+\item{interccept}{The vector of intercepts corresponding to the optimal penalty parameter.}
+\item{beta}{The coefficient matrix corresponding to the optimal penalty parameter.}
+\item{number_covariates}{Number of candidate covariates considered.}
+\item{number_studies_or_outcomes}{Number of studies if \code{problem = "meta-analysis"} or number of outcomes if \code{problem = "multiple outcomes"}.}
 }
-\details{
-This function implments \code{mpersonalized} but use cross validatation for the tuning of penalty parameter.
+\description{
+This function implments \code{mpersonalized} and use cross validatation to tune penalty parameter.
  The optimal penalty parameter is selected by minimizing \deqn{\sum_{i=1}^{n_k}\frac{|\hat{C}_k(X_{i})|}{\sum_{i=1}^{n_k}|\hat{C}_k(X_{i})|}\bigl [1\{\hat{C}_k(X_{i})>0\}-g_k(X_{i})\bigr]^2}
- in the leave-out fold, where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is separately estimated from the training set.
+ in the leave-out fold, where \eqn{\hat{C}_k(X_{i})} in the leave-out fold is independently estimated from the training set.
+}
+\examples{
+set.seed(123)
+sim_dat = simulated_dataset(n = 200, problem = "meta-analysis")
+Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+
+# fit different rules with group lasso penalty
+mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
+                                 Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                 penalty = "GL", single_rule = FALSE)
+
+mp_cvmod_diff$intercept
+mp_cvmod_diff$beta
+
+# fit a single rule with lasso penalty
+mp_cvmod_single = mpersonalized_cv(problem = "meta-analysis",
+                                   Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                   penalty = "lasso", single_rule = FALSE)
+
+mp_cvmod_single$intercept
+mp_cvmod_single$beta
+set.seed(NULL)
 }

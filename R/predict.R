@@ -1,4 +1,4 @@
-#' @title Predict for "mp" object
+#' @title Predict for an "mp" Object
 #'
 #' @description This function predict the benefit scores and optimal treatment for new patients
 #'
