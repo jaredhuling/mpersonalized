@@ -1,12 +1,4 @@
-#' @title Default Penalty Parameter Sequence if Not Given
-#' @param modelXlist the Xlist in contrast framework after standardization
-#' @param modelYlist the Ylist in contrast framework after standardization
-#' @param penalty penalty type
-#' @param single_rule whether a single treatment rule is required
 #' @import glmnet SGL Matrix genlasso
-#'
-#' @return estimated lambda for required penalty if not provided
-#' @export
 
 lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
                             num_lambda1, num_lambda2, num_single_rule_lambda){

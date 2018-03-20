@@ -27,9 +27,7 @@ soft.thresh.vector <- function(a, kappa) {
   a*max(0,1-kappa/sqrt(sum(a^2)))
 }
 
-#' @title ADMM Algorithm for Meta-analysis/Multiple Outcomes Personalized Medicine
-#'
-#' @import Matrix
+
 admm_optim = function(x, y, p, q, lambda1, lambda2, lambda3,
                       abs.tol = 1e-5, rel.tol = 1e-5, maxit = 500L, rho = NULL){
 
