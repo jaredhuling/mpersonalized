@@ -47,10 +47,10 @@
 #' newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
 #'
 #' # predict on newx
-#' pred_new = predict(mp = mp_mod_diff, mewx = newx, overall_rec = TRUE)
+#' pred_new = predict(mp = mp_mod_diff, newx = newx, overall_rec = TRUE)
 #'
 #' # predict on old dataset
-#' pred_old = predict(mp = mp_mod_doff)
+#' pred_old = predict(mp = mp_mod_diff)
 #' set.seed(NULL)
 #' @export
 predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
@@ -185,10 +185,10 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 #' newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
 #'
 #' # predict on newx
-#' pred_new = predict(mp_cv = mp_cvmod_diff, mewx = newx, overall_rec = TRUE)
+#' pred_new = predict(mp_cv = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
 #'
 #' # predict on old dataset
-#' pred_old = predict(mp_cv = mp_cvmod_doff)
+#' pred_old = predict(mp_cv = mp_cvmod_diff)
 #' set.seed(NULL)
 #' @export
 predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){

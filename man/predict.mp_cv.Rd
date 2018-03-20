@@ -47,9 +47,9 @@ mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
 newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
 
 # predict on newx
-pred_new = predict(mp_cv = mp_cvmod_diff, mewx = newx, overall_rec = TRUE)
+pred_new = predict(mp_cv = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
 
 # predict on old dataset
-pred_old = predict(mp_cv = mp_cvmod_doff)
+pred_old = predict(mp_cv = mp_cvmod_diff)
 set.seed(NULL)
 }

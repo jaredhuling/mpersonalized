@@ -1,6 +1,6 @@
 Package: mpersonalized
 Type: Package
-Title: What the Package Does (Title Case)
+Title: An R Package for Personalized Medicine in Meta-analysis and Multiple Outcomes
 Version: 0.1.0
 Author: Chensheng Kuang
 Maintainer: Chensheng Kuang <ckuang@wisc.edu>
