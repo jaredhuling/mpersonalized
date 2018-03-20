@@ -107,7 +107,7 @@ plot.mp_cv = function(mp_cv){
   Ylist = mp_cv$Ylist
   Trtlist = mp_cv$Trtlist
   q = mp_cv$number_studies_or_outcomes
-  problem = mp$problem
+  problem = mp_cv$problem
 
   pred = predict(mp_cv)$opt_treatment
 
