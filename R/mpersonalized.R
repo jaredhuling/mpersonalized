@@ -40,9 +40,9 @@
 #' }
 #'
 #' @param problem A character string specifiy whether user want to solve "meta-analysis" or
-#' "multiple outcomes" problem. For \code{problem = "meta-analysis"}, the user should also supply
+#' "multiple outcomes" problem. For \code{problem = "meta-analysis"}, user should also supply
 #' \code{Xlist}, \code{Ylist}, \code{Trtlist}. For \code{problem = "multiple outcomes"},
-#' the user should supply \code{X}, \code{Ylist}, \code{Trt}.
+#' user should supply \code{X}, \code{Ylist}, \code{Trt}.
 #' @param X Covariate matrix that should be supplied when \code{problem = "multiple outcomes"}
 #' with rows indicating subjects and columns indicating covariates.
 #' @param Trt Treatment vector that should be supplied when \code{problem = "multiple outcomes"},
@@ -61,7 +61,7 @@
 #' with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
 #' If not supplied, then each study is treated as randomized trial and the corresponding propensity score
 #' is estimated as the proportion of 1's in the \eqn{k}th element of \code{Trtlist} for all subjects.
-#' @param typlelist A list object with \eqn{k}th element denoting the type of outcome corresponding
+#' @param typelist A list object with \eqn{k}th element denoting the type of outcome corresponding
 #' to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
 #' "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
@@ -74,7 +74,7 @@
 #' @param alpha \eqn{\alpha} in the framework of different rules. If not supplied, a default value
 #' will be used depending on \code{penalty}.
 #' @param single_rule_lambda \eqn{\lambda_{single}} in the framework of single rule.
-#' @param single_rule A logical value, whether the single treatment framework is used. Deafult is \code{FALSE}.
+#' @param single_rule A logical value, whether the single rule framework is used. Deafult is \code{FALSE}.
 #' @param admm_control A list of parameters which user can specify to control the admm algorithm.
 #' In \code{admm_control}, the following parameters can be supplied:
 #' \code{abs.tol}, absolute tolerance; \code{rel.tol}, relative tolerance; \code{maxit}, maximum number of iterations;

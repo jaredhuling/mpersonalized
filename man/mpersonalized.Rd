@@ -18,9 +18,9 @@ mpersonalized(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
 }
 \arguments{
 \item{problem}{A character string specifiy whether user want to solve "meta-analysis" or
-"multiple outcomes" problem. For \code{problem = "meta-analysis"}, the user should also supply
+"multiple outcomes" problem. For \code{problem = "meta-analysis"}, user should also supply
 \code{Xlist}, \code{Ylist}, \code{Trtlist}. For \code{problem = "multiple outcomes"},
-the user should supply \code{X}, \code{Ylist}, \code{Trt}.}
+user should supply \code{X}, \code{Ylist}, \code{Trt}.}
 
 \item{X}{Covariate matrix that should be supplied when \code{problem = "multiple outcomes"}
 with rows indicating subjects and columns indicating covariates.}
@@ -47,6 +47,9 @@ with \eqn{k}the element denoting the propensity score vector of study \eqn{k}.
 If not supplied, then each study is treated as randomized trial and the corresponding propensity score
 is estimated as the proportion of 1's in the \eqn{k}th element of \code{Trtlist} for all subjects.}
 
+\item{typelist}{A list object with \eqn{k}th element denoting the type of outcome corresponding
+to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".}
+
 \item{penalty}{For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
 "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
 User should always input \code{penalty} and then supply correponding penalty parameters sequence
@@ -72,7 +75,7 @@ of the \code{single_rule_lambda} sequence. The default length is 50.}
 \item{alpha}{\eqn{\alpha} in the framework of different rules. If not supplied, a default value
 will be used depending on \code{penalty}.}
 
-\item{single_rule}{A logical value, whether the single treatment framework is used. Deafult is \code{FALSE}.}
+\item{single_rule}{A logical value, whether the single rule framework is used. Deafult is \code{FALSE}.}
 
 \item{admm_control}{A list of parameters which user can specify to control the admm algorithm.
 In \code{admm_control}, the following parameters can be supplied:
@@ -83,9 +86,6 @@ In \code{admm_control}, the following parameters can be supplied:
 contrast function. In \code{contrast_builder_control},
 the following parameters could be supplied: \code{response_model}, this could be "lasso" or "linear";
 \code{contrast_builder_folds}, the number of folds used in cross validation when response_model = "lasso".}
-
-\item{typlelist}{A list object with \eqn{k}th element denoting the type of outcome corresponding
-to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".}
 }
 \value{
 An S3 object of class "mp", which contains the information of the fitted model. It could be supplied
