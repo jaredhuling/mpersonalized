@@ -226,8 +226,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       full_model = single_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                             Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda)
 
-      penalty_parameter_sequence = as.matrix(single_rule_lasso)
-      colnames(penalty_parameter_sequence) = "single_rule_lasso"
+      penalty_parameter_sequence = as.matrix(single_rule_lambda)
+      colnames(penalty_parameter_sequence) = "single_rule_lambda"
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         penalty_parameter_sequence = penalty_parameter_sequence,
