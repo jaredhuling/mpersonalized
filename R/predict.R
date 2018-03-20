@@ -1,20 +1,61 @@
-#' @title Predict for an "mp" Object
+#' @title Prediction for a Fitted "mp" Object
 #'
-#' @description This function predict the benefit scores and optimal treatment for new patients
+#' @description This function predicts optimal treatment of new subjects for a mpersonalized model.
+#' If different rules are used in the fitting procedure, an overall treatment recommendation
+#' based on all stuides/outcomes could be provided together with optimal treatments for
+#' each study/outcome.
 #'
-#' @param mp the fitted "mp" object returned by "mpersonalized"
-#' @param newx the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study/outcome.
-#' @param overall_rec a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.
-#' @param weight a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.
+#' @details This function predicts for each penalty parameter in the
+#' \code{penalty_parameter_sequence} of the "mp" object. The overall recommended treatment is
+#' given as an weighted average of the recommended treatments from each study/outcome, and the weight
+#' can be specified by user.
 #'
-#' @return a list of results with each element in the list corresponding to the prediciton by each different penalty parameter. Each element in this list contains:
-#' \item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
-#' If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
-#' \item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
+#' @param mp A fitted "mp" object returned by "mpersonalized"
+#' @param newx  Covariate matrix of new patients. If not supplied, by default the prediction
+#' is for the original dataset in the "mp" object. Notice: when \code{problem = "meta-analysis"} and
+#' the prediction is for the original dataset, subjects in each study are only predicted
+#' using the treatment recommendation rule of the study they belong to.
+#' @param overall_rec A logical value. If \code{overall_rec = TRUE}, an overall recommendation will
+#' be provided as an weighted average of the optimal treatment from each individual study/outcome. Only useful
+#' when \code{newx} is provided.
+#' @param weight A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
+#' By default, equal weights are assigned to each study/outcome.
+#'
+#' @return A list object of two elements.
+#' .
+#'
+#' \item{opt_treatment}{A list object with each element denoting the prediction based on a penalty parameter
+#' configuration in \code{mp$penalty_parameter_sequence}. Specifically, if \code{newx} is provided,
+#' each element is a recommendation matrix with each row denoting a subject and each column denoting
+#' a study/outcome; otherwise, each element is a list of vectors with each vector representing the optimal treatment
+#' for each study/outcome. If \code{overall_rec = TRUE},
+#' the weighted overall recommended treatment will be further provided as well.
+#' If the overall recommened treatment is equal to 0.5, it means the weighted sum is equal for 0 and 1.}
+#' \item{benefit_score}{A list object of benefit scores computed from \eqn{g_1, \dots, g_K}. Similar structure as
+#' \code{opt_treatment}.}
+#'
+#' @examples
+#' set.seed(123)
+#' sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
+#' Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+#'
+#' # fit different rules with SGL penalty for this meta-analysis problem
+#' mp_mod_diff = mpersonalized(problem = "meta-analysis",
+#'                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+#'                             penalty = "SGL", single_rule = FLASE)
+#'
+#' newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
+#'
+#' # predict on newx
+#' pred_new = predict(mp = mp_mod_diff, mewx = newx, overall_rec = TRUE)
+#'
+#' # predict on old dataset
+#' pred_old = predict(mp = mp_mod_doff)
+#' set.seed(NULL)
 #' @export
 predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 
-  q = mp$number_studies
+  q = mp$number_studies_or_outcomes
   single_rule = mp$single_rule
 
   if (!is.null(newx)){
@@ -103,29 +144,56 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
     }
   }
 
-  pred_info = list(treatment = treatment, benefit_score = benefit_score)
+  pred_info = list(opt_treatment = treatment, benefit_score = benefit_score)
 
   return(pred_info)
 }
 
 
-#' @title Predict for "mp_cv" object
+#' @title Prediction for a Fitted "mp_cv" Object
 #'
-#' @description This function predict the benefit scores and optimal treatment for new patients
+#' @description This function predicts optimal treatment of new subjects for a cross-validated mpersonalized model.
 #'
-#' @param mp_cv the fitted "mp_cv" object returned from "mpersonalized_cv" function
-#' @param newx the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study/outcome.
-#' @param overall_rec a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.
-#' @param weight a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.
+#' @param mp_cv A fitted "mp_cv" object returned from "mpersonalized_cv" function
+#' @param newx Covariate matrix of new patients. If not supplied, by default the prediction
+#' is for the original dataset in the "mp_cv" object. Prediction results will differ
+#' based on whether \code{newx} is provided or not. Similar to \code{predict.mp}.
+#' @param overall_rec A logical value. If \code{overall_rec = TRUE}, an overall recommendation will
+#' be provided as an weighted average of the optimal treatment from each individual study/outcome. Only useful
+#' when \code{newx} is provided.
+#' @param weight A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
+#' By default, equal weights are assigned to each study/outcome.
 #'
-#' @return the prediciton by using the optimal penalty parameter selected by cross validation. It contains:
-#' \item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
-#' If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
-#' \item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
+#' @return A list object with two elements. Similar to the returned value of \code{predict.mp}, but now it only predicts
+#' for the optimal parameter penalty.
+#' \item{opt_treatment}{If \code{newx} is provided, a recommendation matrix with each row denoting a subject and
+#' each column denoting a study/outcome; otherwise, each element is a list of vectors with each vector representing the optimal treatment
+#' for each study/outcome. If \code{overall_rec = TRUE},
+#' the weighted overall recommended treatment will be further provided as well.
+#' If the overall recommened treatment is equal to 0.5, it means the weighted sum is equal for 0 and 1.}
+#' \item{benefit_score}{Benefit scores computed from \eqn{g_1, \dots, g_K}. Similar to structure of \code{opt_treatment}.}
+#' @examples
+#' set.seed(123)
+#' sim_dat = simulated_dataset(n = 200, problem = "meta-analysis")
+#' Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+#'
+#' # fit different rules with group lasso penalty
+#' mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
+#'                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+#'                                  penalty = "GL", single_rule = FALSE)
+#'
+#' newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
+#'
+#' # predict on newx
+#' pred_new = predict(mp_cv = mp_cvmod_diff, mewx = newx, overall_rec = TRUE)
+#'
+#' # predict on old dataset
+#' pred_old = predict(mp_cv = mp_cvmod_doff)
+#' set.seed(NULL)
 #' @export
 predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){
 
-  q = mp_cv$number_studies
+  q = mp_cv$number_studies_or_outcomes
   single_rule = mp_cv$single_rule
 
   if (!is.null(newx)){
@@ -194,7 +262,7 @@ predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){
     }
   }
 
-  pred_info = list(treatment = treatment, benefit_score = benefit_score)
+  pred_info = list(opt_treatment = treatment, benefit_score = benefit_score)
 
   return(pred_info)
 }

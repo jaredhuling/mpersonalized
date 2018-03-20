@@ -2,25 +2,67 @@
 % Please edit documentation in R/predict.R
 \name{predict.mp}
 \alias{predict.mp}
-\title{Predict for an "mp" Object}
+\title{Prediction for a Fitted "mp" Object}
 \usage{
 \method{predict}{mp}(mp, newx = NULL, weight = NULL, overall_rec = TRUE)
 }
 \arguments{
-\item{mp}{the fitted "mp" object returned by "mpersonalized"}
+\item{mp}{A fitted "mp" object returned by "mpersonalized"}
 
-\item{newx}{the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study/outcome.}
+\item{newx}{Covariate matrix of new patients. If not supplied, by default the prediction
+is for the original dataset in the "mp" object. Notice: when \code{problem = "meta-analysis"} and
+the prediction is for the original dataset, subjects in each study are only predicted
+using the treatment recommendation rule of the study they belong to.}
 
-\item{weight}{a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.}
+\item{weight}{A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
+By default, equal weights are assigned to each study/outcome.}
 
-\item{overall_rec}{a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.}
+\item{overall_rec}{A logical value. If \code{overall_rec = TRUE}, an overall recommendation will
+be provided as an weighted average of the optimal treatment from each individual study/outcome. Only useful
+when \code{newx} is provided.}
 }
 \value{
-a list of results with each element in the list corresponding to the prediciton by each different penalty parameter. Each element in this list contains:
-\item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
-If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
-\item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
+A list object of two elements.
+.
+
+\item{opt_treatment}{A list object with each element denoting the prediction based on a penalty parameter
+configuration in \code{mp$penalty_parameter_sequence}. Specifically, if \code{newx} is provided,
+each element is a recommendation matrix with each row denoting a subject and each column denoting
+a study/outcome; otherwise, each element is a list of vectors with each vector representing the optimal treatment
+for each study/outcome. If \code{overall_rec = TRUE},
+the weighted overall recommended treatment will be further provided as well.
+If the overall recommened treatment is equal to 0.5, it means the weighted sum is equal for 0 and 1.}
+\item{benefit_score}{A list object of benefit scores computed from \eqn{g_1, \dots, g_K}. Similar structure as
+\code{opt_treatment}.}
 }
 \description{
-This function predict the benefit scores and optimal treatment for new patients
+This function predicts optimal treatment of new subjects for a mpersonalized model.
+If different rules are used in the fitting procedure, an overall treatment recommendation
+based on all stuides/outcomes could be provided together with optimal treatments for
+each study/outcome.
+}
+\details{
+This function predicts for each penalty parameter in the
+\code{penalty_parameter_sequence} of the "mp" object. The overall recommended treatment is
+given as an weighted average of the recommended treatments from each study/outcome, and the weight
+can be specified by user.
+}
+\examples{
+set.seed(123)
+sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
+Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+
+# fit different rules with SGL penalty for this meta-analysis problem
+mp_mod_diff = mpersonalized(problem = "meta-analysis",
+                            Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                            penalty = "SGL", single_rule = FLASE)
+
+newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
+
+# predict on newx
+pred_new = predict(mp = mp_mod_diff, mewx = newx, overall_rec = TRUE)
+
+# predict on old dataset
+pred_old = predict(mp = mp_mod_doff)
+set.seed(NULL)
 }

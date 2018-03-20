@@ -2,26 +2,54 @@
 % Please edit documentation in R/predict.R
 \name{predict.mp_cv}
 \alias{predict.mp_cv}
-\title{Predict for "mp_cv" object}
+\title{Prediction for a Fitted "mp_cv" Object}
 \usage{
 \method{predict}{mp_cv}(mp_cv, newx = NULL, weight = NULL,
   overall_rec = TRUE)
 }
 \arguments{
-\item{mp_cv}{the fitted "mp_cv" object returned from "mpersonalized_cv" function}
+\item{mp_cv}{A fitted "mp_cv" object returned from "mpersonalized_cv" function}
 
-\item{newx}{the covariate matrix of the new patients. If newx = NULL, then the prediction is made for each data set based on the rule of that study/outcome.}
+\item{newx}{Covariate matrix of new patients. If not supplied, by default the prediction
+is for the original dataset in the "mp_cv" object. Prediction results will differ
+based on whether \code{newx} is provided or not. Similar to \code{predict.mp}.}
 
-\item{weight}{a weight vector for the overall recommendation. If leave as \code{NULL}, a equally weighted recommendation will be made.}
+\item{weight}{A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
+By default, equal weights are assigned to each study/outcome.}
 
-\item{overall_rec}{a logical value. If \code{TRUE}, an overall recommendation will be made weighted by the "weight" parameter.}
+\item{overall_rec}{A logical value. If \code{overall_rec = TRUE}, an overall recommendation will
+be provided as an weighted average of the optimal treatment from each individual study/outcome. Only useful
+when \code{newx} is provided.}
 }
 \value{
-the prediciton by using the optimal penalty parameter selected by cross validation. It contains:
-\item{treatment}{recommended treatment for each patient for each study/outcome. If \code{overall_rec = TRUE}, the weighted overall recommended treatment will be computed as well.
-If the overall recommened treatment is equal to 0.5, it means the sum of weight is equal for 0 and 1.}
-\item{benefit_score}{the benefit score computed from \eqn{g_1, \dots, g_K}}
+A list object with two elements. Similar to the returned value of \code{predict.mp}, but now it only predicts
+for the optimal parameter penalty.
+\item{opt_treatment}{If \code{newx} is provided, a recommendation matrix with each row denoting a subject and
+each column denoting a study/outcome; otherwise, each element is a list of vectors with each vector representing the optimal treatment
+for each study/outcome. If \code{overall_rec = TRUE},
+the weighted overall recommended treatment will be further provided as well.
+If the overall recommened treatment is equal to 0.5, it means the weighted sum is equal for 0 and 1.}
+\item{benefit_score}{Benefit scores computed from \eqn{g_1, \dots, g_K}. Similar to structure of \code{opt_treatment}.}
 }
 \description{
-This function predict the benefit scores and optimal treatment for new patients
+This function predicts optimal treatment of new subjects for a cross-validated mpersonalized model.
+}
+\examples{
+set.seed(123)
+sim_dat = simulated_dataset(n = 200, problem = "meta-analysis")
+Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+
+# fit different rules with group lasso penalty
+mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
+                                 Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                                 penalty = "GL", single_rule = FALSE)
+
+newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
+
+# predict on newx
+pred_new = predict(mp_cv = mp_cvmod_diff, mewx = newx, overall_rec = TRUE)
+
+# predict on old dataset
+pred_old = predict(mp_cv = mp_cvmod_doff)
+set.seed(NULL)
 }
