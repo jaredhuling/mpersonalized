@@ -438,8 +438,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                       penalty_parameter_sequence = penalty_parameter_sequence,
                       opt_penalty_parameter= penalty_parameter_sequence[opt_ind,],
                       penalty = "lasso", single_rule = TRUE,
-                      number_covariates = p, number_studies = q,
-                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                      number_covariates = p, number_studies_or_outcomes = q,
+                      Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                      problem = problem)
 
   } else {
 
@@ -469,8 +470,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         opt_penalty_parameter = opt_penalty_parameter,
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
-                        number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        number_covariates = p, number_studies_or_outcomes = q,
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
 
     } else if (penalty %in% c("lasso", "SGL", "GL")){
 
@@ -487,8 +489,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         opt_penalty_parameter = penalty_parameter_sequence[opt_ind,],
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
-                        number_covariates = p, number_studies = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        number_covariates = p, number_studies_or_outcomes = q,
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
 
     }
   }

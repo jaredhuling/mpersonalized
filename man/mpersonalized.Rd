@@ -150,7 +150,7 @@ Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 # fit different rules with SGL penalty for this meta-analysis problem
 mp_mod_diff = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "SGL", single_rule = FLASE)
+                            penalty = "SGL", single_rule = FALSE)
 
 # fir a single rule with lasso penalty
 mp_mod_single = mpersonalized(problem = "meta-analysis",

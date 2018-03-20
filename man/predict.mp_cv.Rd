@@ -8,7 +8,7 @@
   overall_rec = TRUE)
 }
 \arguments{
-\item{mp_cv}{A fitted "mp_cv" object returned from "mpersonalized_cv" function}
+\item{mp_cv}{A fitted "mp_cv" object returned by "mpersonalized_cv" function}
 
 \item{newx}{Covariate matrix of new patients. If not supplied, by default the prediction
 is for the original dataset in the "mp_cv" object. Prediction results will differ

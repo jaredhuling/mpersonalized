@@ -115,7 +115,7 @@
 #' # fit different rules with SGL penalty for this meta-analysis problem
 #' mp_mod_diff = mpersonalized(problem = "meta-analysis",
 #'                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-#'                             penalty = "SGL", single_rule = FLASE)
+#'                             penalty = "SGL", single_rule = FALSE)
 #'
 #' # fir a single rule with lasso penalty
 #' mp_mod_single = mpersonalized(problem = "meta-analysis",
@@ -233,7 +233,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies_or_outcomes = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
 
     } else if (penalty == "none"){
 
@@ -248,7 +249,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies_or_outcomes = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
     }
 
   } else {
@@ -273,7 +275,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
 
     } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
 
@@ -339,7 +342,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
 
     } else if (penalty %in% c("lasso", "GL", "SGL")){
 
@@ -397,7 +401,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
-                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist)
+                        Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        problem = problem)
     }
   }
 

@@ -42,7 +42,7 @@
 #' # fit different rules with SGL penalty for this meta-analysis problem
 #' mp_mod_diff = mpersonalized(problem = "meta-analysis",
 #'                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-#'                             penalty = "SGL", single_rule = FLASE)
+#'                             penalty = "SGL", single_rule = FALSE)
 #'
 #' newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
 #'
@@ -154,7 +154,7 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 #'
 #' @description This function predicts optimal treatment of new subjects for a cross-validated mpersonalized model.
 #'
-#' @param mp_cv A fitted "mp_cv" object returned from "mpersonalized_cv" function
+#' @param mp_cv A fitted "mp_cv" object returned by "mpersonalized_cv" function
 #' @param newx Covariate matrix of new patients. If not supplied, by default the prediction
 #' is for the original dataset in the "mp_cv" object. Prediction results will differ
 #' based on whether \code{newx} is provided or not. Similar to \code{predict.mp}.

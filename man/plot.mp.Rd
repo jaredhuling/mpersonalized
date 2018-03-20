@@ -2,25 +2,41 @@
 % Please edit documentation in R/plot.R
 \name{plot.mp}
 \alias{plot.mp}
-\title{Plot for a 'mp' Class Object.}
+\title{Interaction Plot for an "mp" Class Object.}
 \usage{
-\method{plot}{mp}(mp, ind1, ind2, single_ind)
+\method{plot}{mp}(mp, penalty_index)
 }
 \arguments{
-\item{mp}{the 'mp' class object returned by \code{mpersonalzied} function}
+\item{mp}{A fitted "mp" class object returned by \code{mpersonalzied} function}
 
-\item{ind1}{the index of the lambda1 if different rules are used}
-
-\item{ind2}{the index of the lambda2 if different rules are used}
-
-\item{single_ind}{the index of the single_rule_lambda if an single rule is used}
+\item{penalty_index}{The index of penalty parameter configuration in \code{mp$penalty_parameter_sequence}.
+When \code{mp$penalty = "none"}, \code{penalty_index} is automatically set to be 1.}
 }
 \value{
-a list object with \eqn{k}th element denoting the plot of study k
+A list object with each element as the interaction plots for a penalty parameter configuration.
+}
+\description{
+This function plots interaction between received treatment and recommended treatment,
+which provides an estimate of treatment effect of the identified subgroup.
 }
 \details{
-This function plots the results for estimated treatment effects. Depending on the received
-treatment and recommended treatment, the group means of the outcome are computed and the relations between them are plotted.
-This plot provides a sanity check of the treatment recommendation rule. By specifiying the index of the penalty parameters, we can
-obtain the plots of the corresponding treatment recommendation rule.
+In the interaction plot, each point is the group mean given a received treatment
+and a recommended treatment. Although usually
+overestimating treatment effect in training set, interaction plots provides a sanity check for treatment
+recommendation rules. Given a specific index of penalty parameter, the function
+plots corresponding interaction plots.
+}
+\examples{
+set.seed(123)
+sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
+Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+
+# fit different rules with SGL penalty for this meta-analysis problem
+mp_mod_diff = mpersonalized(problem = "meta-analysis",
+                            Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+                            penalty = "lasso", single_rule = FALSE)
+
+# interaction plot of the 5th penalty parameter
+plots = plot(mp = mp_mod_diff, penalty_index = 5)
+set.seed(NULL)
 }

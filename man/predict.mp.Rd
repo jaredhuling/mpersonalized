@@ -55,7 +55,7 @@ Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 # fit different rules with SGL penalty for this meta-analysis problem
 mp_mod_diff = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-                            penalty = "SGL", single_rule = FLASE)
+                            penalty = "SGL", single_rule = FALSE)
 
 newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
 
