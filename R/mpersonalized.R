@@ -82,8 +82,8 @@
 #' @param contrast_builder_control A list of parameters which user can specify to control estimation of
 #' contrast function. In \code{contrast_builder_control},
 #' the following parameters could be supplied: \code{eff_aug}, a logical value whether efficiency augmentation
-#' should be implmeneted to build contrast estimator; \code{response_model}, a character string specify what model to use to
-#' model the outcome if \code{eff_aug = TRUE}, \code{response_model} could be "lasso" or "linear";
+#' should be implemented; \code{response_model}, a character string specify what outcome model to use
+#' if \code{eff_aug = TRUE}, \code{response_model} could be "lasso" or "linear";
 #' \code{contrast_builder_folds}, the number of folds used in cross validation when \code{response_model = "lasso"}.
 #' @param num_lambda1 If \code{lambda1} is not specified by user, user could still specify the length of the
 #' \code{lambda1} sequence. The default length is 10.
