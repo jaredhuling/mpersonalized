@@ -1,0 +1,43 @@
+---
+title: "mpersonalized Vignette"
+author: "Chensheng Kuang"
+date: "March 22, 2018"
+output:
+  pdf_document:
+    number_sections: yes
+    toc: yes
+bibliography: reference.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+`mpersonalized` is an R package dedicated to solving the problem of personalized medicine in meta-analysis and multiple outcomes. This package extends the contrast classification framework [@zhang2012] to both meta-analysis and multiple outcomes, and fits a linear classifier to identify the subgroup who might benefit from treatment. With an increasing number of biomarkers available nowadays, variable selection has become more than necessary in personalized medicine. Hence, the package incorporate a rich variety of variable selection methods to handle high dimensional problems properly. `mpersonalized` also provides other options flexible enough to meet different requirements from users; e.g. in multiple outcomes, using different rules or a single rule.
+
+In the setting of a single study or outcome, the contrast classification framework [@zhang2012] estimates the optimal treatment rule by solving
+$$\min_g \sum_{i=1}^n |\hat{C}(X_i)|[1\{\hat{C}(X_i)>0\}-g(X_i)]^2,$$
+where $\hat{C}$ is the estimator of the usually unknown contrast function $C(X) = E(Y|A=1, X) - E(Y|A=0, X)$. Althgouh adapting the framework to more complicated settings, `mpersonalized` incorporates the whole pipeline, from estimation of the contrast function to fitting of treatment rules to eventually prediction for new subjects, in one single function so as to facilitate the usage of this framework.
+
+This vignette is aimed to help users understand how `mpersonalized` works and how to apply it to a new dataset or problem. Various examples will be provided and most options will be covered. To learn more about the package, we recommended users to the reference manual.
+
+# Installation
+
+`mpersonalized` can be installed from Github repository "chenshengkuang/mpersonalized" now. In order to do that, users need to install R package `devtools` first. `devtools` could be downloaded from CRAN by typing the following command:
+```{R install devtools, eval = FALSE, echo = TRUE}
+install.packages("devtools")
+```
+
+When `devtools` has been installed, we could then install `mpersonalized` package using commands:
+```{R install mpersonalized, eval = FALSE, echo = TRUE}
+library(devtools)
+install_github("chenshengkuang/mpersonalized")
+```
+
+In the future, there might be frequent updates of the package. To update `mpersonalized`, install it again using the above commands.
+
+# Quick Start
+
+# References
