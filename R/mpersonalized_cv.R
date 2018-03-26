@@ -87,7 +87,7 @@
 #' # fit a single rule with lasso penalty
 #' mp_cvmod_single = mpersonalized_cv(problem = "meta-analysis",
 #'                                    Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
-#'                                    penalty = "lasso", single_rule = FALSE)
+#'                                    penalty = "lasso", single_rule = TRUE)
 #'
 #' mp_cvmod_single$intercept
 #' mp_cvmod_single$beta

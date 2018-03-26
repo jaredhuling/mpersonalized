@@ -22,7 +22,7 @@ set.seed(123)
 sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
 Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 
-# fit different rules with SGL penalty for this meta-analysis problem
+# fit different rules with lasso penalty for this meta-analysis problem
 mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                                  penalty = "lasso", single_rule = FALSE)
