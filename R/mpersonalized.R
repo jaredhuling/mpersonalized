@@ -325,7 +325,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       if (is.null(lambda1) | is.null(lambda2)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
-                                         num_lambda1 = num_lambda1, num_lambda2 = num_lambda2)
+                                         num_lambda1 = num_lambda1, num_lambda2 = num_lambda2,
+                                         lambda1 = lambda1, lambda2 = lambda2)
 
         if (is.null(lambda1))
           lambda1 = lambda_default$lambda1
@@ -386,7 +387,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       if (is.null(lambda1)){
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
-                                         num_lambda1 = num_lambda1)
+                                         num_lambda1 = num_lambda1, lambda1 = lambda1)
 
         lambda1 = lambda_default$lambda1
       }

@@ -1,12 +1,14 @@
 #' @import glmnet SGL Matrix genlasso
 
 lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
-                            num_lambda1, num_lambda2, num_single_rule_lambda){
+                            num_lambda1, num_lambda2, num_single_rule_lambda,
+                            lambda1, lambda2){
   lambda_estimate = NULL
 
   #need to estimate lambda1?
   if (single_rule == FALSE &
-      penalty != "fused"){
+      penalty != "fused" &
+      is.null(lambda1)){
 
     q = length(modelXlist)
     p = dim(modelXlist[[1]])[2]
@@ -27,7 +29,8 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
 
   #need to estimate lambda2?
   if (single_rule == FALSE &
-      penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
+      penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused") &
+      is.null(lambda2)){
 
     q = length(modelXlist)
     p = dim(modelXlist[[1]])[2]
