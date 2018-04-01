@@ -25,7 +25,7 @@ meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lamb
   admm_lambda2 = ifelse(lambda1 != 0, lambda1 * alpha, 0)
   admm_lambda3 = lambda2
 
-  penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nalmbda2)
+  penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nlambda2)
   colnames(penalty_parameter_sequence) = c("lambda1", "lambda2")
 
   for (ind1 in 1:nlambda1)
