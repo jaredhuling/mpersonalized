@@ -459,7 +459,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                lambda1 = lambda1[opt_ind1], lambda2 = lambda2[opt_ind2], alpha = alpha, admm_control = admm_control)
 
-      penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nalmbda2)
+      penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda1 * nlambda2)
       colnames(penalty_parameter_sequence) = c("lambda1", "lambda2")
 
       for (ind1 in 1:length(lambda1))
