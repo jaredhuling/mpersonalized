@@ -34,6 +34,7 @@ plot.mp = function(mp, penalty_index){
 
   Ylist = mp$Ylist
   Trtlist = mp$Trtlist
+  Plist = mp$Plist
   single_rule = mp$single_rule
   q = mp$number_studies_or_outcomes
   penalty = mp$penalty
@@ -56,9 +57,11 @@ plot.mp = function(mp, penalty_index){
 
   #group 1 defined as receive 1 and recommend 1; group 2 as receive 0 and recommend 1
   #group 3 defined as receive 0 and recommend 0; group 4 as receive 1 and recommend 0
-  meanlist = mapply(function(Trt, pred, Y) c(mean(Y[Trt == 1 & pred == 1]), mean(Y[Trt == 0 & pred == 1]),
-                                             mean(Y[Trt == 0 & pred == 0]), mean(Y[Trt == 1 & pred == 0])),
-                    Trt = Trtlist, pred = pred, Y = Ylist, SIMPLIFY = FALSE)
+  meanlist = mapply(function(Trt, pred, Y,  P) c(sum(Y * as.numeric(Trt == 1 & pred == 1) / P) / sum(as.numeric(Trt == 1 & pred == 1) / P),
+                                                 sum(Y * as.numeric(Trt == 0 & pred == 1) / (1 - P)) / sum(as.numeric(Trt == 0 & pred == 1) / (1 - P)),
+                                                 sum(Y * as.numeric(Trt == 0 & pred == 0) / (1 - P)) / sum(as.numeric(Trt == 0 & pred == 0) / (1 - P)),
+                                                 sum(Y * as.numeric(Trt == 1 & pred == 0) / P) / sum(as.numeric(Trt == 1 & pred == 1) / P)),
+                    Trt = Trtlist, pred = pred, Y = Ylist, P = Plist, SIMPLIFY = FALSE)
 
   plotlist = replicate(q, list())
   for (i in 1:q){
@@ -106,6 +109,7 @@ plot.mp_cv = function(mp_cv){
 
   Ylist = mp_cv$Ylist
   Trtlist = mp_cv$Trtlist
+  Plist = mp_cv$Plist
   q = mp_cv$number_studies_or_outcomes
   problem = mp_cv$problem
 
@@ -113,9 +117,11 @@ plot.mp_cv = function(mp_cv){
 
   #group 1 defined as receive 1 and recommend 1; group 2 as receive 0 and recommend 1
   #group 3 defined as receive 0 and recommend 0; group 4 as receive 1 and recommend 0
-  meanlist = mapply(function(Trt, pred, Y) c(mean(Y[Trt == 1 & pred == 1]), mean(Y[Trt == 0 & pred == 1]),
-                                             mean(Y[Trt == 0 & pred == 0]), mean(Y[Trt == 1 & pred == 0])),
-                    Trt = Trtlist, pred = pred, Y = Ylist, SIMPLIFY = FALSE)
+  meanlist = mapply(function(Trt, pred, Y,  P) c(sum(Y * as.numeric(Trt == 1 & pred == 1) / P) / sum(as.numeric(Trt == 1 & pred == 1) / P),
+                                                 sum(Y * as.numeric(Trt == 0 & pred == 1) / (1 - P)) / sum(as.numeric(Trt == 0 & pred == 1) / (1 - P)),
+                                                 sum(Y * as.numeric(Trt == 0 & pred == 0) / (1 - P)) / sum(as.numeric(Trt == 0 & pred == 0) / (1 - P)),
+                                                 sum(Y * as.numeric(Trt == 1 & pred == 0) / P) / sum(as.numeric(Trt == 1 & pred == 1) / P)),
+                    Trt = Trtlist, pred = pred, Y = Ylist, P = Plist, SIMPLIFY = FALSE)
 
   plotlist = replicate(q, list())
   for (i in 1:q){
