@@ -132,6 +132,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                          Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL, simplify = FALSE),
                          typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
                          penalty = c("none", "lasso", "GL", "SGL", "fused",
+                                     "SGL+SL",
                                      "lasso+fused", "GL+fused", "SGL+fused"),
                          lambda1 = NULL, lambda2 = NULL, single_rule_lambda = NULL,
                          num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
@@ -378,6 +379,14 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
         if (!is.null(alpha)){
           if (alpha == 0 | alpha == 1){
+            warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
+            alpha = 0.95
+          }
+        } else alpha = 0.95
+      } else if (penalty == "SGL+SL"){
+
+        if (!is.null(alpha)){
+          if (alpha <= 0 | alpha <= 1){
             warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           }
