@@ -60,9 +60,31 @@ recover_beta_sgl_fused <- function(coefs, p, studies)
   beta
 }
 
+gen_tau0 <- function(ntau, min.tau = 1e-3)
+{
+  # generate values for tau0 on a log-linear scale
+  # when 0 < tau < 1
+  # and on an exp-linear scale
+  # when tau > 1
+  if (ntau %% 2 == 0)
+  {
+    tau1 <- exp(seq(log(min.tau), log(1), length.out = ntau / 2 ))
+    tau2 <- exp(seq(log(1), log(1 / min.tau), length.out = ntau / 2 + 1 ))
+
+    tau  <- c(tau1, tau2[-1])
+  } else
+  {
+    tau1 <- exp(seq(log(min.tau), log(1), length.out = (ntau + 1) / 2 ))
+    tau2 <- exp(seq(log(1), log(1 / min.tau), length.out = (ntau + 1) / 2 ))
+
+    tau  <- c(tau1, tau2[-1])
+  }
+  tau
+}
+
 sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
-                                           Xbarlist, Xsdlist, lambda, alpha,
-                                           fused = FALSE, tau0 = 1)
+                                           Xbarlist, Xsdlist, lambda = NULL, alpha,
+                                           fused = FALSE, tau0 = 1, nlambda = 50)
 {
 
   q = length(modelXlist)
@@ -72,14 +94,17 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
   total_n = length(y)
   y       = sqrt(total_n) * y
 
-  nlambda = length(lambda)
-  ntau    = length(tau0)
+  if (!is.null(lambda))
+  {
+    nlambda = length(lambda)
+  }
 
+  ntau    = length(tau0)
 
   betalist      = vector("list", nlambda * ntau)
   interceptlist = vector("list", nlambda * ntau)
 
-  penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda * ntau)
+  penalty_parameter_sequence = matrix(0, ncol = 2, nrow = nlambda * ntau)
   colnames(penalty_parameter_sequence) = c("lambda", "tau")
 
   for (t in 1:ntau)
@@ -88,15 +113,22 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
 
     data = list(x = x, y = y)
 
-    SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
-                    lambdas = lambda, alpha = alpha, standardize = FALSE)
+    if (!is.null(lambda))
+    {
+      SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
+                      lambdas = lambda, alpha = alpha, standardize = FALSE)
+    } else
+    {
+      SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
+                      nlam = nlambda, alpha = alpha, standardize = FALSE)
+      lambda <- SGL_model$lambda
+    }
 
     beta_all <- matrix(0, nrow = q * p, ncol = ncol(SGL_model$beta))
 
     for (l in 1:ncol(SGL_model$beta))
     {
-      beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l])
-
+      beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l], p, q)
       penalty_parameter_sequence[(l - 1) * ntau + t,] = c(lambda[l], tau0[t])
     }
 
@@ -115,9 +147,6 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
     }
 
   }
-
-
-
 
 
   return(list(interceptlist              = interceptlist,
