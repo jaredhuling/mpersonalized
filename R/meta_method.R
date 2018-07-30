@@ -43,9 +43,9 @@ meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lamb
       intercept = unlist(Ybarlist) - apply(beta * matrix(unlist(Xbarlist), nrow = q, ncol = p, byrow = TRUE), 1, sum)
       beta = beta / matrix(unlist(Xsdlist), nrow = q, ncol = p, byrow = TRUE)
 
-      betalist[[(ind1 - 1) * nlambda2 + ind2]] = beta
+      betalist[[(ind1 - 1) * nlambda2 + ind2]]      = beta
       interceptlist[[(ind1 - 1) * nlambda2 + ind2]] = intercept
-      iterslist[[(ind1 - 1) * nlambda2 + ind2]] = result$iters
+      iterslist[[(ind1 - 1) * nlambda2 + ind2]]     = result$iters
     }
 
   return(list(interceptlist = interceptlist,

@@ -75,36 +75,53 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
   nlambda = length(lambda)
   ntau    = length(tau0)
 
-  x = sqrt(total_n) * make_design_matrix_sgl_fused(modelXlist, tau0)
 
-  data = list(x = x, y = y)
+  betalist      = vector("list", nlambda * ntau)
+  interceptlist = vector("list", nlambda * ntau)
 
-  SGL_model = SGL(data = data, index = rep(1 : p, q),
-                  lambdas = lambda, alpha = alpha, standardize = FALSE)
+  penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = nlambda * ntau)
+  colnames(penalty_parameter_sequence) = c("lambda", "tau")
 
-  beta_all <- matrix(0, nrow = q * p, ncol = ncol(SGL_model$beta))
-
-  for (l in 1:ncol(SGL_model$beta))
+  for (t in 1:ntau)
   {
-    beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l])
+    x = sqrt(total_n) * make_design_matrix_sgl_fused(modelXlist, tau0[t])
+
+    data = list(x = x, y = y)
+
+    SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
+                    lambdas = lambda, alpha = alpha, standardize = FALSE)
+
+    beta_all <- matrix(0, nrow = q * p, ncol = ncol(SGL_model$beta))
+
+    for (l in 1:ncol(SGL_model$beta))
+    {
+      beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l])
+
+      penalty_parameter_sequence[(l - 1) * ntau + t,] = c(lambda[l], tau0[t])
+    }
+
+    for (ind in 1:nlambda)
+    {
+
+      beta = matrix(beta_all[, ind], nrow = q, ncol = p, byrow = TRUE)
+      intercept = unlist(Ybarlist) - apply(beta * matrix(unlist(Xbarlist), nrow = q, ncol = p, byrow = TRUE), 1, sum)
+      beta = beta / matrix(unlist(Xsdlist), nrow = q, ncol = p, byrow = TRUE)
+
+      betalist[[(ind - 1) * ntau + t]]      <- beta
+      interceptlist[[(ind - 1) * ntau + t]] <- intercept
+      #betalist[[(ind1 - 1) * nlambda2 + ind2]]      = beta
+      #interceptlist[[(ind1 - 1) * nlambda2 + ind2]] = intercept
+
+    }
+
   }
 
 
-  betalist = vector("list", nlambda)
-  interceptlist = vector("list", nlambda)
 
-  for (ind in 1:nlambda)
-  {
 
-    beta = matrix(beta_all[, ind], nrow = q, ncol = p, byrow = TRUE)
-    intercept = unlist(Ybarlist) - apply(beta * matrix(unlist(Xbarlist), nrow = q, ncol = p, byrow = TRUE), 1, sum)
-    beta = beta / matrix(unlist(Xsdlist), nrow = q, ncol = p, byrow = TRUE)
 
-    betalist[[ind]]      <- beta
-    interceptlist[[ind]] <- intercept
-  }
-
-  return(list(interceptlist = interceptlist,
-              betalist      = betalist,
-              lambda        = lambda))
+  return(list(interceptlist              = interceptlist,
+              betalist                   = betalist,
+              lambda                     = lambda,
+              penalty_parameter_sequence = penalty_parameter_sequence))
 }
