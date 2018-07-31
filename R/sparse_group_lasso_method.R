@@ -60,7 +60,7 @@ recover_beta_sgl_fused <- function(coefs, p, studies)
   beta
 }
 
-gen_tau0 <- function(ntau, min.tau = 1e-3)
+gen_tau0 <- function(ntau, min.tau = 1e-2)
 {
   # generate values for tau0 on a log-linear scale
   # when 0 < tau < 1
@@ -115,11 +115,11 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
 
     if (!is.null(lambda))
     {
-      SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
+      SGL_model = SGL(data = data, index = rep(1 : p, q + 1), min.frac = 0.05,
                       lambdas = lambda, alpha = alpha, standardize = FALSE)
     } else
     {
-      SGL_model = SGL(data = data, index = rep(1 : p, q + 1),
+      SGL_model = SGL(data = data, index = rep(1 : p, q + 1), min.frac = 0.05,
                       nlam = nlambda, alpha = alpha, standardize = FALSE)
       lambda <- SGL_model$lambda
     }

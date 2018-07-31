@@ -357,7 +357,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (!is.null(lambda2)){
         if (sum(lambda2 != 0) > 0){
-          warning("When penalty = lasso/GL/SGL, the value for lambda2 is ignored and automatically set to be 0!")
+          warning("When penalty = lasso/GL/SGL/SGL+SL, the value for lambda2 is ignored and automatically set to be 0!")
         }
       }
 
@@ -391,7 +391,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
         if (!is.null(alpha)){
           if (alpha <= 0 | alpha <= 1){
-            warning("When penalty = SGL, alpha cannot be set as 0 or 1, and default is 0.95!")
+            warning("When penalty = SGL+SL, alpha cannot be set as 0 or 1, and default is 0.95!")
             alpha = 0.95
           }
         } else alpha = 0.95
