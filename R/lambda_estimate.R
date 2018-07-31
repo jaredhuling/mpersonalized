@@ -1,4 +1,4 @@
-#' @import glmnet SGL Matrix
+#' @import glmnet SGL Matrix genlasso
 
 lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
                             num_lambda1, num_lambda2, num_single_rule_lambda,
