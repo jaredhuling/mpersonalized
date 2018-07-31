@@ -332,10 +332,15 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
   } else {
     if (penalty %in% c("lasso", "GL", "SGL")){
       tune_cost = numeric(length(lambda1))
+      names(tune_cost) <- paste0("lam=", round(lambda1, 2))
     } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")){
       tune_cost = matrix(0, nrow = length(lambda1), ncol = length(lambda2))
+      rownames(tune_cost) <- paste0("lam1=", round(lambda1, 2))
+      colnames(tune_cost) <- paste0("lam2=", round(lambda2, 2))
     } else if (penalty %in% c("SGL+SL")){
       tune_cost = matrix(0, nrow = if(is.null(lambda1)){num_lambda1}else{length(lambda1)}, ncol = length(tau0))
+      rownames(tune_cost) <- paste0("lam=", round(lambda1, 2))
+      colnames(tune_cost) <- paste0("tau0=", round(tau0, 2))
     }
   }
 
