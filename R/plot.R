@@ -139,3 +139,43 @@ plot.mp_cv = function(mp_cv){
 
   return(plotlist)
 }
+
+
+#' @title Cross Validation Error Plot for an "mp_cv" Class Object.
+#'
+#' @description This function plots the cross validation error as a function of the tuning parameters.
+#' For penalties with 2 tuning parameters, a heat map will be plotted via the \code{image()} function
+#'
+#' @param mp_cv A fitted 'mp_cv' class object returned by \code{mpersonalized_cv} function
+#'
+#' @return Nothing
+#'
+#' @examples
+#' set.seed(123)
+#' sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
+#' Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
+#'
+#' # fit different rules with lasso penalty for this meta-analysis problem
+#' mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
+#'                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
+#'                                  penalty = "lasso", single_rule = FALSE)
+#'
+#' plots = plotCVE(mp_cvmod_diff)
+#' set.seed(NULL)
+#' @export
+#' @importFrom grDevices topo.colors
+plotCVE <- function(mp_cv)
+{
+  if (class(mp_cv) != "mp_cv") stop("object supplied must be an 'mp_cv' object as returned by 'mpersonalized_cv()'")
+
+  dim_tune <- dim(mp_cv$cv_error)
+
+  if (is.null(dim_tune))
+  {
+    plot(y = mp_cv$cv_error, type = "b", x = mp_cv$penalty_parameter_sequence,
+         xlab = expression(lambda), ylab = "Cross Validation Error")
+  } else
+  {
+    image(as(mp_cv$cv_error, "Matrix"), col.regions = topo.colors(250), colorkey = TRUE)
+  }
+}
