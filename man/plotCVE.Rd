@@ -4,10 +4,12 @@
 \alias{plotCVE}
 \title{Cross Validation Error Plot for an "mp_cv" Class Object.}
 \usage{
-plotCVE(mp_cv, key.lab = "CV Err", ...)
+plotCVE(mp_cv, col.regions = vcols, key.lab = "CV Err", ...)
 }
 \arguments{
 \item{mp_cv}{A fitted 'mp_cv' class object returned by \code{mpersonalized_cv} function}
+
+\item{col.regions}{color scale. See \code{\link[Matrix]{image-methods}}}
 
 \item{key.lab}{label for colorkey}
 
