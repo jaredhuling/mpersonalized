@@ -4,10 +4,14 @@
 \alias{plotCVE}
 \title{Cross Validation Error Plot for an "mp_cv" Class Object.}
 \usage{
-plotCVE(mp_cv)
+plotCVE(mp_cv, key.lab = "CV Err", ...)
 }
 \arguments{
 \item{mp_cv}{A fitted 'mp_cv' class object returned by \code{mpersonalized_cv} function}
+
+\item{key.lab}{label for colorkey}
+
+\item{...}{arguments to be passed to \code{\link[lattice]{levelplot}}}
 }
 \value{
 Nothing
@@ -26,6 +30,6 @@ mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                                  penalty = "lasso", single_rule = FALSE)
 
-plots = plotCV(mp_cvmod_diff)
+plots = plotCVE(mp_cvmod_diff)
 set.seed(NULL)
 }

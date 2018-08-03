@@ -4,7 +4,8 @@
 \alias{predict.mp}
 \title{Prediction for a Fitted "mp" Object}
 \usage{
-\method{predict}{mp}(mp, newx = NULL, weight = NULL, overall_rec = TRUE)
+\method{predict}{mp}(mp, newx = NULL, weight = NULL,
+  overall_rec = TRUE)
 }
 \arguments{
 \item{mp}{A fitted "mp" object returned by "mpersonalized"}

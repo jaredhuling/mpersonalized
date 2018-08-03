@@ -488,6 +488,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     penalty_parameter_sequence = as.matrix(single_rule_lambda)
     colnames(penalty_parameter_sequence) = "single_rule_lambda"
 
+    penalty_parameter_sequence_all = penalty_parameter_sequence
+
     model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
                       penalty_parameter_sequence = penalty_parameter_sequence,
                       opt_penalty_parameter= penalty_parameter_sequence[opt_ind,],
@@ -511,13 +513,15 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                lambda1 = lambda1[opt_ind1], lambda2 = lambda2[opt_ind2], alpha = alpha, admm_control = admm_control)
 
-      penalty_parameter_sequence = matrix(NULL, ncol = 2, nrow = length(lambda1) * length(lambda2))
+      penalty_parameter_sequence = matrix(0, ncol = 2, nrow = length(lambda1) * length(lambda2))
       colnames(penalty_parameter_sequence) = c("lambda1", "lambda2")
 
       for (ind1 in 1:length(lambda1))
         for (ind2 in 1:length(lambda2)){
           penalty_parameter_sequence[(ind - 1) * length(lambda2) + ind2,] = c(lambda1[ind1], lambda2[ind2])
         }
+
+      penalty_parameter_sequence_all = penalty_parameter_sequence
 
       opt_penalty_parameter = penalty_parameter_sequence[(opt_ind1 - 1) * length(lambda2) + opt_ind2,]
 
@@ -541,6 +545,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       penalty_parameter_sequence = as.matrix(lambda1)
       colnames(penalty_parameter_sequence) = "lambda1"
 
+      penalty_parameter_sequence_all = penalty_parameter_sequence
+
       model_info = list(intercept = full_model$interceptlist[[opt_ind]], beta = full_model$betalist[[opt_ind]],
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         opt_penalty_parameter = penalty_parameter_sequence[opt_ind,],
@@ -561,6 +567,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                                    nlambda = num_lambda1)
 
       penalty_parameter_sequence = full_model$penalty_parameter_sequence
+
+      penalty_parameter_sequence_all = penalty_parameter_sequence
 
       #opt_penalty_parameter = penalty_parameter_sequence[(opt_ind1 - 1) * length(lambda2) + opt_ind2,]
       opt_penalty_parameter = penalty_parameter_sequence[opt_ind1, ]

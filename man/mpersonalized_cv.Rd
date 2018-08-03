@@ -4,11 +4,12 @@
 \alias{mpersonalized_cv}
 \title{Cross Validation for \code{mpersonalized}}
 \usage{
-mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
-  P = NULL, Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL,
-  simplify = FALSE), typelist = replicate(length(Xlist), "continuous",
-  simplify = FALSE), penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused",
-  "GL+fused", "SGL+fused", "SGL+SL"), lambda1 = NULL, lambda2 = NULL,
+mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X,
+  Trt, P = NULL, Xlist, Ylist, Trtlist,
+  Plist = replicate(length(Xlist), NULL, simplify = FALSE),
+  typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
+  penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused",
+  "SGL+fused", "SGL+SL"), lambda1 = NULL, lambda2 = NULL,
   tau0 = NULL, single_rule_lambda = NULL,
   num_lambda1 = ifelse(!is.null(lambda1), length(lambda1), 10),
   num_lambda2 = ifelse(!is.null(lambda2), length(lambda2), 10),

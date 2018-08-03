@@ -147,6 +147,8 @@ plot.mp_cv = function(mp_cv){
 #' For penalties with 2 tuning parameters, a heat map will be plotted via the \code{image()} function
 #'
 #' @param mp_cv A fitted 'mp_cv' class object returned by \code{mpersonalized_cv} function
+#' @param key.lab label for colorkey
+#' @param ... arguments to be passed to \code{\link[lattice]{levelplot}}
 #'
 #' @return Nothing
 #'
@@ -164,7 +166,9 @@ plot.mp_cv = function(mp_cv){
 #' set.seed(NULL)
 #' @export
 #' @importFrom grDevices topo.colors
-plotCVE <- function(mp_cv)
+plotCVE <- function(mp_cv,
+                    key.lab = "CV Err",
+                    ...)
 {
   if (class(mp_cv) != "mp_cv") stop("object supplied must be an 'mp_cv' object as returned by 'mpersonalized_cv()'")
 
@@ -176,6 +180,24 @@ plotCVE <- function(mp_cv)
          xlab = expression(lambda), ylab = "Cross Validation Error")
   } else
   {
-    image(as(mp_cv$cv_error, "Matrix"), col.regions = topo.colors(250), colorkey = TRUE)
+    if (mp_cv$penalty == "SGL+SL")
+    {
+      xlab <- expression(tau[0])
+    } else
+    {
+      xlab <- expression(lambda[2])
+    }
+
+    rn <- round(unique(mp_cvmod_diff2$penalty_parameter_sequence[,1]), 2) #gsub("[^0-9\\.]", "", rownames(mp_cv$cv_error))
+    cn <- round(unique(mp_cvmod_diff2$penalty_parameter_sequence[,2]), 2) #gsub("[^0-9\\.]", "", colnames(mp_cv$cv_error))
+
+    ylab <- expression(lambda[1])
+    image(as(mp_cv$cv_error, "Matrix"), col.regions = topo.colors(250), colorkey = TRUE,
+          xlab = xlab, ylab = ylab, scales = list(y = list(labels = rn, at = 1:length(rn)),
+                                                  x = list(labels = cn, at = 1:length(cn),
+                                                           rot = 45)),
+          ylab.right = key.lab,
+          sub = NULL,
+          ...)
   }
 }
