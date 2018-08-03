@@ -29,7 +29,7 @@
 #' @param typelist A list object with \eqn{k}th element denoting the type of outcome corresponding
 #' to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".
 #' @param penalty For different rules, the penalty could be "lasso", "GL", "SGL", "fused",
-#' "lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could only be "lasso".
+#' "lasso+fused", "GL+fused", "SGL+fused", or "SGL+SL". For single rule, the penalty could only be "lasso".
 #' For \code{penalty = "none"}, use function \code{mpersonalized} instead.
 #' User should always input \code{penalty} and then supply correponding penalty parameters sequence
 #' if needed.
@@ -37,6 +37,8 @@
 #' sequence will be computed.
 #' @param lambda2 \eqn{\lambda_2} in the framework of different rules. If not supplied, a default
 #' sequence will be computed.
+#' @param tau0 Parameter \eqn{\tau_0} for the \code{"SGL+SL"} penalty in the framework of different rules.
+#' If not supplied, a default sequence will be computed.
 #' @param alpha \eqn{\alpha} in the framework of different rules. If not supplied, a default value
 #' will be used depending on \code{penalty}.
 #' @param single_rule_lambda \eqn{\lambda_{single}} in the framework of single rule.
@@ -56,6 +58,10 @@
 #' \code{lambda1} sequence. The default length is 10.
 #' @param num_lambda2 If \code{lambda2} is not specified by user, user could still specify the length of the
 #' \code{lambda2} sequence. The default length is 10.
+#' @param num_tau0 If \code{tau0} is not specified by user, the user can still specify the length of the
+#' \code{tau0} sequence. The default length is 11.
+#' @param min_tau If \code{tau0} is not specified by user, \code{min_tau} specifies the minimum value
+#' for \eqn{\tau_0}. The largest value for \eqn{\tau_0} will be \code{1 / min_tau}.
 #' @param num_single_rule_lambda If \code{single_rule_lambda} is not specified, user could still specify the length
 #' of the \code{single_rule_lambda} sequence. The default length is 50.
 #'
@@ -66,7 +72,7 @@
 #'
 #' \item{penalty_parameter_sequence}{A matrix object with each row denoting a configuration of the penalty parameters.}
 #' \item{opt_penalty_parameter}{Optimal penalty parameter chosen by minimizing the cross validation error.}
-#' \item{interccept}{The vector of intercepts corresponding to the optimal penalty parameter.}
+#' \item{intercept}{The vector of intercepts corresponding to the optimal penalty parameter.}
 #' \item{beta}{The coefficient matrix corresponding to the optimal penalty parameter.}
 #' \item{number_covariates}{Number of candidate covariates considered.}
 #' \item{number_studies_or_outcomes}{Number of studies if \code{problem = "meta-analysis"} or number of outcomes if \code{problem = "multiple outcomes"}.}
@@ -497,6 +503,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                       penalty = "lasso", single_rule = TRUE,
                       number_covariates = p, number_studies_or_outcomes = q,
                       Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                      Ybar = Ybar, Xbar = Xbar, Xsd = Xsd,
                       problem = problem)
 
   } else {
@@ -533,6 +540,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        Ybar = Ybarlist, Xbar = Xbarlist, Xsd = Xsdlist,
                         problem = problem)
 
     } else if (penalty %in% c("lasso", "SGL", "GL")){
@@ -555,6 +563,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        Ybar = Ybarlist, Xbar = Xbarlist, Xsd = Xsdlist,
                         problem = problem)
 
     } else if (penalty %in% c("SGL+SL")){
@@ -581,6 +590,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
+                        Ybar = Ybarlist, Xbar = Xbarlist, Xsd = Xsdlist,
                         problem = problem)
 
     }

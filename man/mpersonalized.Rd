@@ -53,7 +53,7 @@ is estimated as the proportion of 1's in the \eqn{k}th element of \code{Trtlist}
 to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or "binary".}
 
 \item{penalty}{For different rules, the penalty could be "none", "lasso", "GL", "SGL", "fused",
-"lasso+fused", "GL+fused", "SGL+fused". For single rule, the penalty could be "none" or "lasso".
+"lasso+fused", "GL+fused", "SGL+fused", or "SGL+SL". For single rule, the penalty could be "none" or "lasso".
 User should always input \code{penalty} and then supply correponding penalty parameters sequence
 if needed. Default option is "none".}
 
@@ -63,13 +63,22 @@ sequence will be computed.}
 \item{lambda2}{\eqn{\lambda_2} in the framework of different rules. If not supplied, a default
 sequence will be computed.}
 
+\item{tau0}{Parameter \eqn{\tau_0} for the \code{"SGL+SL"} penalty in the framework of different rules.
+If not supplied, a default sequence will be computed.}
+
 \item{single_rule_lambda}{\eqn{\lambda_{single}} in the framework of single rule.}
 
-\item{num_lambda1}{If \code{lambda1} is not specified by user, user could still specify the length of the
+\item{num_lambda1}{If \code{lambda1} is not specified by user, the user can still specify the length of the
 \code{lambda1} sequence. The default length is 10.}
 
-\item{num_lambda2}{If \code{lambda2} is not specified by user, user could still specify the length of the
+\item{num_lambda2}{If \code{lambda2} is not specified by user, the user can still specify the length of the
 \code{lambda2} sequence. The default length is 10.}
+
+\item{num_tau0}{If \code{tau0} is not specified by user, the user can still specify the length of the
+\code{tau0} sequence. The default length is 11.}
+
+\item{min_tau}{If \code{tau0} is not specified by user, \code{min_tau} specifies the minimum value
+for \eqn{\tau_0}. The largest value for \eqn{\tau_0} will be \code{1 / min_tau}.}
 
 \item{num_single_rule_lambda}{If \code{single_rule_lambda} is not specified, user could still specify the length
 of the \code{single_rule_lambda} sequence. The default length is 50.}
@@ -134,6 +143,9 @@ By setting \eqn{\lambda_1, \lambda_2, \alpha} differently, different penalties c
 \item If \eqn{\lambda_1 \ne0, \lambda_2 = 0} and \eqn{\alpha = 0}, the penalty is "GL".
 \item If \eqn{\lambda_1 \ne0, \lambda_2 = 0} and \eqn{\alpha = 1}, the penalty is "lasso".
 \item If \eqn{\lambda_1, \lambda_2 = 0}, there is no penalty.
+\item If \eqn{\tau_0} is very large for \code{penalty = "SGL+SL"}, all coefficients across all studies will be equal.
+\item If \eqn{\tau_0 = 0} for \code{penalty = "SGL+SL"}, an error will be returned. However, if \eqn{\tau_0} is close to 0,
+more heterogeneity across studies will be preferred
 }
 
 On the other hand, if we would like to fit a single rule for all studies/outcomes, we let \eqn{g_1 = \dots= g_K} and
