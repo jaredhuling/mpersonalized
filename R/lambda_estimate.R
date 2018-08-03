@@ -35,7 +35,8 @@ lambda_estimate =  function(modelXlist, modelYlist, penalty, single_rule, alpha,
         total_n = length(y)
         y       = sqrt(total_n) * y
 
-        x = sqrt(total_n) * make_design_matrix_sgl_fused(modelXlist, tau0 = 1.0)
+        dm <- make_design_matrix_sgl_fused(modelXlist, tau0 = 1.0)
+        x  <- sqrt(total_n) * dm$design
 
         data = list(x = x, y = y)
 

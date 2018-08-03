@@ -399,14 +399,14 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       } else if (penalty == "SGL+SL"){
 
         if (!is.null(alpha)){
-          if (alpha <= 0 | alpha <= 1){
-            warning("When penalty = SGL+SL, alpha cannot be set as 0 or 1, and default is 0.95!")
+          if (alpha < 0 | alpha > 1){
+            warning("When penalty = SGL+SL, alpha must be between 0 and 1. The default is 0.95!")
             alpha = 0.95
           }
         } else alpha = 0.95
       }
 
-      if (is.null(lambda1) & penalty != "SGL+SL"){
+      if (is.null(lambda1)){  #  & penalty != "SGL+SL"
         lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, lambda1 = lambda1)

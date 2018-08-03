@@ -42,10 +42,11 @@ make_design_matrix_sgl_fused <- function(modelXlist, tau0)
   studies    <- length(modelXlist)
   weight.vec <- 1 / unlist(lapply( 1:studies, function(s) rep(tau_s[s], ss.vec[s]) ))
 
-  cbind(do.call(rbind, modelXlist), weight.vec * as.matrix(bdiag(modelXlist)) )
+  list(design = cbind(do.call(rbind, modelXlist), weight.vec * as.matrix(bdiag(modelXlist)) ),
+       tau_s = tau_s)
 }
 
-recover_beta_sgl_fused <- function(coefs, p, studies)
+recover_beta_sgl_fused <- function(coefs, p, studies, tau_s)
 {
   beta.global <- coefs[1:p]
   beta.locals <- coefs[-(1:p)]
@@ -55,7 +56,7 @@ recover_beta_sgl_fused <- function(coefs, p, studies)
   for (s in 1:studies)
   {
     idx.cur <- ((s - 1) * p + 1):(s * p)
-    beta[idx.cur] <- beta.locals[idx.cur] + beta.global
+    beta[idx.cur] <- beta.locals[idx.cur] / tau_s[s] + beta.global
   }
   beta
 }
@@ -109,7 +110,9 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
 
   for (t in 1:ntau)
   {
-    x = sqrt(total_n) * make_design_matrix_sgl_fused(modelXlist, tau0[t])
+    dm    <- make_design_matrix_sgl_fused(modelXlist, tau0[t])
+    tau_s <- dm$tau_s
+    x <- sqrt(total_n) * dm$design
 
     data = list(x = x, y = y)
 
@@ -128,13 +131,12 @@ sparse_group_fused_lasso_method = function(modelYlist, modelXlist, Ybarlist,
 
     for (l in 1:ncol(SGL_model$beta))
     {
-      beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l], p, q)
+      beta_all[,l] <- recover_beta_sgl_fused(SGL_model$beta[,l], p, q, tau_s)
       penalty_parameter_sequence[(l - 1) * ntau + t,] = c(lambda[l], tau0[t])
     }
 
     for (ind in 1:nlambda)
     {
-
       beta = matrix(beta_all[, ind], nrow = q, ncol = p, byrow = TRUE)
       intercept = unlist(Ybarlist) - apply(beta * matrix(unlist(Xbarlist), nrow = q, ncol = p, byrow = TRUE), 1, sum)
       beta = beta / matrix(unlist(Xsdlist), nrow = q, ncol = p, byrow = TRUE)
