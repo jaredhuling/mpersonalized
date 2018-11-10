@@ -293,8 +293,8 @@ plotCVE <- function(mp_cv,
       xlab <- expression(lambda[2])
     }
 
-    rn <- round(unique(mp_cvmod_diff2$penalty_parameter_sequence[,1]), 2) #gsub("[^0-9\\.]", "", rownames(mp_cv$cv_error))
-    cn <- round(unique(mp_cvmod_diff2$penalty_parameter_sequence[,2]), 2) #gsub("[^0-9\\.]", "", colnames(mp_cv$cv_error))
+    rn <- round(unique(mp_cv$penalty_parameter_sequence[,1]), 2) #gsub("[^0-9\\.]", "", rownames(mp_cv$cv_error))
+    cn <- round(unique(mp_cv$penalty_parameter_sequence[,2]), 2) #gsub("[^0-9\\.]", "", colnames(mp_cv$cv_error))
 
     # topo.colors(250)
     ylab <- expression(lambda[1])
@@ -305,5 +305,8 @@ plotCVE <- function(mp_cv,
           ylab.right = key.lab,
           sub = NULL,
           ...)
+
+    # grid.edit("[.]colorkey.labels$", grep=TRUE, just="right",
+    #           global=T, x=unit(0.95, "npc"))
   }
 }

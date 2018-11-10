@@ -12,6 +12,7 @@ sparse_group_lasso_method = function(modelYlist, modelXlist, Ybarlist,
   x = sqrt(total_n) * x; y = sqrt(total_n) * y
 
   data = list(x = x, y = y)
+
   SGL_model = SGL(data = data, index = rep(1 : p, q),
                   lambdas = lambda, alpha = alpha, standardize = FALSE)
 

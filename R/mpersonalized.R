@@ -210,13 +210,13 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                                                contrast_builder_control))
   }
 
-
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
                                            single_rule = single_rule)
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
 
-  if (single_rule == TRUE){
+  if (single_rule == TRUE)
+  {
 
     Ybar = standardized_data$Ybar
     Xbar = standardized_data$Xbar
