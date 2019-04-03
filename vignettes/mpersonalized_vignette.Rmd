@@ -1,10 +1,10 @@
 ---
-title: "mpersonalized Vignette"
+title: "Overview of the mpersonalized for subgroup identification for meta analysis and multiple responses"
 author: "Author Name"
 date: "March 29, 2018"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Overview of mpersonalized}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: reference.bib
