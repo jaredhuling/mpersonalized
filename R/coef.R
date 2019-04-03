@@ -2,7 +2,8 @@
 #'
 #' @description This function provides \code{coef} method for "mp" class objects.
 #'
-#' @param mp A fitted "mp" object returned by "mpersonalized".
+#' @param object A fitted "mp" object returned by "mpersonalized".
+#' @param ... not used
 #'
 #' @return A list object. Each element in the list is the fitted coefficients
 #' corresponding to one penalty parameter value in \code{mp$penalty_parameter_sequence}.
@@ -17,11 +18,15 @@
 #'                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
 #'                             penalty = "SGL", single_rule = FALSE)
 #'
-#' mp_coef = coef(mp_mod_dfff)
+#' mp_coef = coef(mp_mod_diff)
 #' set.seed(NULL)
 #' @export
-coef.mp = function(mp){
+#' @importFrom graphics plot
+#' @importFrom methods as
+#' @importFrom stats binomial gaussian glm lm predict quantile rbinom rnorm sd
+coef.mp = function(object, ...) {
 
+  mp <- object
   single_rule = mp$single_rule
 
   if (single_rule == TRUE){
@@ -43,7 +48,8 @@ coef.mp = function(mp){
 #'
 #' @description This function provides \code{coef} method for "mp_cv" class objects.
 #'
-#' @param mp_cv A fitted "mp" object returned by "mpersonalized".
+#' @param object A fitted "mp" object returned by "mpersonalized".
+#' @param ... not used
 #'
 #' @return The fitted coefficients corresponding to the optimal penalty parameter.
 #'
@@ -60,8 +66,9 @@ coef.mp = function(mp){
 #' mp_coef = coef(mp_cvmod_diff)
 #' set.seed(NULL)
 #' @export
-coef.mp_cv = function(mp_cv){
+coef.mp_cv = function(object, ...) {
 
+  mp_cv <- object
   single_rule = mp_cv$single_rule
 
   if (single_rule == TRUE){

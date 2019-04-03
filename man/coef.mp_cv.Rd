@@ -4,10 +4,12 @@
 \alias{coef.mp_cv}
 \title{Coefficients of a Fitted "mp_cv" Object}
 \usage{
-\method{coef}{mp_cv}(mp_cv)
+\method{coef}{mp_cv}(object, ...)
 }
 \arguments{
-\item{mp_cv}{A fitted "mp" object returned by "mpersonalized".}
+\item{object}{A fitted "mp" object returned by "mpersonalized".}
+
+\item{...}{not used}
 }
 \value{
 The fitted coefficients corresponding to the optimal penalty parameter.

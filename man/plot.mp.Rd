@@ -4,13 +4,15 @@
 \alias{plot.mp}
 \title{Interaction Plot for an "mp" Class Object.}
 \usage{
-\method{plot}{mp}(mp, penalty_index)
+\method{plot}{mp}(x, penalty_index, ...)
 }
 \arguments{
-\item{mp}{A fitted "mp" class object returned by \code{mpersonalzied} function}
+\item{x}{A fitted "mp" class object returned by \code{mpersonalzied} function}
 
 \item{penalty_index}{The index of penalty parameter configuration in \code{mp$penalty_parameter_sequence}.
 When \code{mp$penalty = "none"}, \code{penalty_index} is automatically set to be 1.}
+
+\item{...}{not used}
 }
 \value{
 A list object with each element as the interaction plots for a penalty parameter configuration.
@@ -37,6 +39,6 @@ mp_mod_diff = mpersonalized(problem = "meta-analysis",
                             penalty = "lasso", single_rule = FALSE)
 
 # interaction plot of the 5th penalty parameter
-plots = plot(mp = mp_mod_diff, penalty_index = 5)
+plots = plot(x = mp_mod_diff, penalty_index = 5)
 set.seed(NULL)
 }

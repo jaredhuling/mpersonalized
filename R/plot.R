@@ -112,9 +112,10 @@ vcols <- c("#FCFDBFFF", "#FCFBBDFF", "#FCF9BBFF", "#FCF7B9FF", "#FCF6B8FF",
 #' recommendation rules. Given a specific index of penalty parameter, the function
 #' plots corresponding interaction plots.
 #'
-#' @param mp A fitted "mp" class object returned by \code{mpersonalzied} function
+#' @param x A fitted "mp" class object returned by \code{mpersonalzied} function
 #' @param penalty_index The index of penalty parameter configuration in \code{mp$penalty_parameter_sequence}.
 #' When \code{mp$penalty = "none"}, \code{penalty_index} is automatically set to be 1.
+#' @param ... not used
 #'
 #' @import ggplot2 gridExtra
 #' @return A list object with each element as the interaction plots for a penalty parameter configuration.
@@ -130,11 +131,13 @@ vcols <- c("#FCFDBFFF", "#FCFBBDFF", "#FCF9BBFF", "#FCF7B9FF", "#FCF6B8FF",
 #'                             penalty = "lasso", single_rule = FALSE)
 #'
 #' # interaction plot of the 5th penalty parameter
-#' plots = plot(mp = mp_mod_diff, penalty_index = 5)
+#' plots = plot(x = mp_mod_diff, penalty_index = 5)
 #' set.seed(NULL)
 #' @export
-plot.mp = function(mp, penalty_index){
+plot.mp = function(x, penalty_index, ...)
+{
 
+  mp <- x
   Ylist = mp$Ylist
   Trtlist = mp$Trtlist
   Plist = mp$Plist
@@ -142,6 +145,8 @@ plot.mp = function(mp, penalty_index){
   q = mp$number_studies_or_outcomes
   penalty = mp$penalty
   problem = mp$problem
+
+  recommend <- received <- NULL
 
 
   if (penalty == "none"){
@@ -189,7 +194,8 @@ plot.mp = function(mp, penalty_index){
 #' @description This function plots interaction between received treatment and recommended treatment,
 #' given the optimal penalty parameter.
 #'
-#' @param mp_cv A fitted 'mp_cv' class object returned by \code{mpersonalzied_cv} function
+#' @param x A fitted 'mp_cv' class object returned by \code{mpersonalzied_cv} function
+#' @param ... not used
 #'
 #' @import ggplot2 gridExtra
 #' @return A list object representing the interaction plots for the optimal penalty parameter configuration.
@@ -205,16 +211,19 @@ plot.mp = function(mp, penalty_index){
 #'                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
 #'                                  penalty = "lasso", single_rule = FALSE)
 #'
-#' plots = plot(mp_cv = mp_cvmod_diff)
+#' plots = plot(x = mp_cvmod_diff)
 #' set.seed(NULL)
 #' @export
-plot.mp_cv = function(mp_cv){
+plot.mp_cv = function(x, ...) {
 
+  mp_cv <- x
   Ylist = mp_cv$Ylist
   Trtlist = mp_cv$Trtlist
   Plist = mp_cv$Plist
   q = mp_cv$number_studies_or_outcomes
   problem = mp_cv$problem
+
+  recommend <- received <- NULL
 
   pred = predict(mp_cv)$opt_treatment
 

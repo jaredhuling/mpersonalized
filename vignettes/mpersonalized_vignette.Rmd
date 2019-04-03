@@ -1,11 +1,12 @@
 ---
-title: "Mpersonalized Vignette"
-author: "Chensheng Kuang"
+title: "mpersonalized Vignette"
+author: "Author Name"
 date: "March 29, 2018"
-output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 bibliography: reference.bib
 ---
 
@@ -180,6 +181,7 @@ When using `mpersonalized` and `mpersonalized_cv`, it is recommended users speci
 
 * "none": no penalty. $\lambda_1 = 0$, $\lambda_2 = 0$.
 * "lasso": lasso penalty. $\alpha = 1$, $\lambda_1 \ne 0$, $\lambda_2 = 0$.
+* "SGL+SL": sparse group lasso with stratified lasso (proposed method) $\alpha \ne 0$ or $1$, $\lambda_1 \ne 0$, $\lambda_2 \ne 0$.
 * "GL": group lasso penalty. $\alpha = 0$, $\lambda_1 \ ne 0$, $\lambda_2 = 0$.
 * "SGL": sparse group lasso penalty. $\alpha \ne 0$ or $1$, $\lambda_1 \ne 0$, $\lambda_2 = 0$.
 * "fused": fused lasso penalty. $\lambda_1 = 0$, $\lambda_2 \ne 0$.

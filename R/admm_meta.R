@@ -41,7 +41,6 @@ conblockC<-function(blockD){
 
 
 admm_meta <- function(x, y, p,q, lambda1, lambda2,lambda3, rho, abs.tol = 1e-5, rel.tol = 1e-5, maxit = 500L) {
-  require(Matrix)
 
   blockD=genlassoD(lambda2 = lambda2, lambda3 = lambda3, q=q)
 

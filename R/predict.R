@@ -10,7 +10,7 @@
 #' given as an weighted average of the recommended treatments from each study/outcome, and the weight
 #' can be specified by user.
 #'
-#' @param mp A fitted "mp" object returned by "mpersonalized"
+#' @param object A fitted "mp" object returned by "mpersonalized"
 #' @param newx  Covariate matrix of new patients. If not supplied, by default the prediction
 #' is for the original dataset in the "mp" object. Notice: when \code{problem = "meta-analysis"} and
 #' the prediction is for the original dataset, subjects in each study are only predicted
@@ -20,6 +20,7 @@
 #' when \code{newx} is provided.
 #' @param weight A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
 #' By default, equal weights are assigned to each study/outcome.
+#' @param ... not used
 #'
 #' @return A list object of two elements.
 #' .
@@ -47,14 +48,15 @@
 #' newx = matrix(rnorm(100 * mp_mod_diff$number_covariates), nrow = 100)
 #'
 #' # predict on newx
-#' pred_new = predict(mp = mp_mod_diff, newx = newx, overall_rec = TRUE)
+#' pred_new = predict(object = mp_mod_diff, newx = newx, overall_rec = TRUE)
 #'
 #' # predict on old dataset
-#' pred_old = predict(mp = mp_mod_diff)
+#' pred_old = predict(object = mp_mod_diff)
 #' set.seed(NULL)
 #' @export
-predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
+predict.mp = function(object, newx = NULL, weight = NULL, overall_rec = TRUE, ...) {
 
+  mp <- object
   q = mp$number_studies_or_outcomes
   single_rule = mp$single_rule
 
@@ -154,7 +156,7 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 #'
 #' @description This function predicts optimal treatment of new subjects for a cross-validated mpersonalized model.
 #'
-#' @param mp_cv A fitted "mp_cv" object returned by "mpersonalized_cv" function
+#' @param object A fitted "mp_cv" object returned by "mpersonalized_cv" function
 #' @param newx Covariate matrix of new patients. If not supplied, by default the prediction
 #' is for the original dataset in the "mp_cv" object. Prediction results will differ
 #' based on whether \code{newx} is provided or not. Similar to \code{predict.mp}.
@@ -163,6 +165,7 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 #' when \code{newx} is provided.
 #' @param weight A weight vector for the overall recommendation, only needed when \code{overall_rec = TRUE}.
 #' By default, equal weights are assigned to each study/outcome.
+#' @param ... not used
 #'
 #' @return A list object with two elements. Similar to the returned value of \code{predict.mp}, but now it only predicts
 #' for the optimal parameter penalty.
@@ -185,14 +188,15 @@ predict.mp = function(mp, newx = NULL, weight = NULL, overall_rec = TRUE){
 #' newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
 #'
 #' # predict on newx
-#' pred_new = predict(mp_cv = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
+#' pred_new = predict(object = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
 #'
 #' # predict on old dataset
-#' pred_old = predict(mp_cv = mp_cvmod_diff)
+#' pred_old = predict(object = mp_cvmod_diff)
 #' set.seed(NULL)
 #' @export
-predict.mp_cv = function(mp_cv, newx = NULL, weight = NULL, overall_rec = TRUE){
+predict.mp_cv = function(object, newx = NULL, weight = NULL, overall_rec = TRUE, ...) {
 
+  mp_cv <- object
   q = mp_cv$number_studies_or_outcomes
   single_rule = mp_cv$single_rule
 

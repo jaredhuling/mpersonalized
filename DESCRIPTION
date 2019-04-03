@@ -2,8 +2,8 @@ Package: mpersonalized
 Type: Package
 Title: An R Package for Personalized Medicine in Meta-analysis and Multiple Outcomes
 Version: 0.1.0
-Author: Chensheng Kuang
-Maintainer: Chensheng Kuang <ckuang@wisc.edu>
+Author: Author Name
+Maintainer: Author Name <authoremail@email.edu>
 Description: Implements a general framework to solve the problem of personalized medicine 
     in meta-analysis and multiple outcomes. This framework allows either separate rules 
     for each study/outcome or a single rule for all the studies/outcomes, depending on the 
@@ -19,8 +19,8 @@ Imports: glmnet,
     ggplot2,
     gridExtra,
     genlasso,
-    Matrix
+    Matrix,
+    methods
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
-LinkingTo: Rcpp

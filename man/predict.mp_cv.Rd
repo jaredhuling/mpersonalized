@@ -4,11 +4,11 @@
 \alias{predict.mp_cv}
 \title{Prediction for a Fitted "mp_cv" Object}
 \usage{
-\method{predict}{mp_cv}(mp_cv, newx = NULL, weight = NULL,
-  overall_rec = TRUE)
+\method{predict}{mp_cv}(object, newx = NULL, weight = NULL,
+  overall_rec = TRUE, ...)
 }
 \arguments{
-\item{mp_cv}{A fitted "mp_cv" object returned by "mpersonalized_cv" function}
+\item{object}{A fitted "mp_cv" object returned by "mpersonalized_cv" function}
 
 \item{newx}{Covariate matrix of new patients. If not supplied, by default the prediction
 is for the original dataset in the "mp_cv" object. Prediction results will differ
@@ -20,6 +20,8 @@ By default, equal weights are assigned to each study/outcome.}
 \item{overall_rec}{A logical value. If \code{overall_rec = TRUE}, an overall recommendation will
 be provided as an weighted average of the optimal treatment from each individual study/outcome. Only useful
 when \code{newx} is provided.}
+
+\item{...}{not used}
 }
 \value{
 A list object with two elements. Similar to the returned value of \code{predict.mp}, but now it only predicts
@@ -47,9 +49,9 @@ mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
 newx = matrix(rnorm(100 * mp_cvmod_diff$number_covariates), nrow = 100)
 
 # predict on newx
-pred_new = predict(mp_cv = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
+pred_new = predict(object = mp_cvmod_diff, newx = newx, overall_rec = TRUE)
 
 # predict on old dataset
-pred_old = predict(mp_cv = mp_cvmod_diff)
+pred_old = predict(object = mp_cvmod_diff)
 set.seed(NULL)
 }

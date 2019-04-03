@@ -4,10 +4,12 @@
 \alias{coef.mp}
 \title{Coefficients of a Fitted "mp" Object}
 \usage{
-\method{coef}{mp}(mp)
+\method{coef}{mp}(object, ...)
 }
 \arguments{
-\item{mp}{A fitted "mp" object returned by "mpersonalized".}
+\item{object}{A fitted "mp" object returned by "mpersonalized".}
+
+\item{...}{not used}
 }
 \value{
 A list object. Each element in the list is the fitted coefficients
@@ -26,6 +28,6 @@ mp_mod_diff = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                             penalty = "SGL", single_rule = FALSE)
 
-mp_coef = coef(mp_mod_dfff)
+mp_coef = coef(mp_mod_diff)
 set.seed(NULL)
 }

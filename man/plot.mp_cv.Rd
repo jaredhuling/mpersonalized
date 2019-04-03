@@ -4,10 +4,12 @@
 \alias{plot.mp_cv}
 \title{Interaction Plot for an "mp_cv" Class Object.}
 \usage{
-\method{plot}{mp_cv}(mp_cv)
+\method{plot}{mp_cv}(x, ...)
 }
 \arguments{
-\item{mp_cv}{A fitted 'mp_cv' class object returned by \code{mpersonalzied_cv} function}
+\item{x}{A fitted 'mp_cv' class object returned by \code{mpersonalzied_cv} function}
+
+\item{...}{not used}
 }
 \value{
 A list object representing the interaction plots for the optimal penalty parameter configuration.
@@ -27,6 +29,6 @@ mp_cvmod_diff = mpersonalized_cv(problem = "meta-analysis",
                                  Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                                  penalty = "lasso", single_rule = FALSE)
 
-plots = plot(mp_cv = mp_cvmod_diff)
+plots = plot(x = mp_cvmod_diff)
 set.seed(NULL)
 }
