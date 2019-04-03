@@ -581,7 +581,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       #opt_penalty_parameter = penalty_parameter_sequence[(opt_ind1 - 1) * length(lambda2) + opt_ind2,]
       #opt_penalty_parameter = penalty_parameter_sequence[opt_ind1, ]
 
-      opt_penalty_parameter = penalty_parameter_sequence[(opt_ind1 - 1) * length(lambda2) + opt_ind2,]
+      opt_penalty_parameter = penalty_parameter_sequence[opt_ind1,]
 
 
       model_info = list(intercept = full_model$interceptlist[[opt_ind1]],

@@ -394,11 +394,12 @@ set.seed(123)
 # Simulated dataset for meta-analysis
 sim_dat = simulated_dataset(n = 200, problem = "meta-analysis")
 
+# use the proposed method of the paper ("SGL+SL")
 mod = mpersonalized(problem = "meta-analysis",
                     Xlist = sim_dat$Xlist,
                     Ylist = sim_dat$Ylist,
                     Trtlist = sim_dat$Trtlist,
-                    penalty = "SGL",
+                    penalty = "SGL+SL",
                     single_rule = FALSE)
 
 mod$penalty_parameter_sequence
@@ -410,7 +411,7 @@ cv_mod = mpersonalized_cv(problem = "meta-analysis",
                           Xlist = sim_dat$Xlist,
                           Ylist = sim_dat$Ylist,
                           Trtlist = sim_dat$Trtlist,
-                          penalty = "SGL",
+                          penalty = "SGL+SL",
                           single_rule = FALSE)
 
 # with cross validation, coef will directly return the coefficients with the optimal penalty parameter value
@@ -437,7 +438,7 @@ cv_mod = mpersonalized_cv(problem = "meta-analysis",
                           Xlist = sim_dat$Xlist,
                           Ylist = sim_dat$Ylist,
                           Trtlist = sim_dat$Trtlist,
-                          penalty = "SGL",
+                          penalty = "SGL+SL",
                           single_rule = FALSE)
 
 # simulate the covariates matrix for 10 new subjects
@@ -467,7 +468,7 @@ mod = mpersonalized(problem = "meta-analysis",
                     Xlist = sim_dat$Xlist,
                     Ylist = sim_dat$Ylist,
                     Trtlist = sim_dat$Trtlist,
-                    penalty = "SGL",
+                    penalty = "SGL+SL",
                     single_rule = FALSE)
 
 # interaction plot of study 1 corresponding to the model fitted with the 3rd penalty parameter value 
@@ -477,11 +478,15 @@ cv_mod = mpersonalized_cv(problem = "meta-analysis",
                           Xlist = sim_dat$Xlist,
                           Ylist = sim_dat$Ylist,
                           Trtlist = sim_dat$Trtlist,
-                          penalty = "SGL",
+                          penalty = "SGL+SL",
                           single_rule = FALSE)
 
 # interaction plot of study 1
 plot(cv_mod)[[1]]
+
+
+# plot cross validation error vs tuning parameters
+plotCVE(cv_mod)
 
 set.seed(NULL)
 ```
