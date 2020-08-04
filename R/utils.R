@@ -536,7 +536,7 @@ oneDimLogit2 <- function (data, index, thresh = 1e-04, lambdas = NULL, beta.naug
                step = as.double(step),
                weights = as.double(weights),
                penaltyweights = as.double(penaltyweights),
-               PACKAGE = "metaDRG")
+               PACKAGE = "mpersonalized")
     intercepts[i] = junk$betaZero
     if (i < nlam) {
       intercepts[i + 1] = intercepts[i]
@@ -604,7 +604,7 @@ oneDim2 <- function (data, index, thresh = 1e-04, nlam = 20, lambdas = NULL,
                gamma = as.double(gamma), betaIsZero = as.integer(beta.is.zero),
                step = as.double(step), reset = as.integer(reset),
                weights = as.double(weights), penaltyweights = as.double(penaltyweights),
-               PACKAGE = "metaDRG")
+               PACKAGE = "mpersonalized")
     beta.new <- junk$beta
     beta[, k] <- beta.new
     beta.is.zero <- junk$betaIsZero
