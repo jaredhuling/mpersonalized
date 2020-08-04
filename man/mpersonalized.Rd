@@ -113,12 +113,12 @@ In \code{admm_control}, the following parameters can be supplied:
 contrast function. In \code{contrast_builder_control},
 the following parameters could be supplied: \code{eff_aug}, a logical value whether efficiency augmentation
 should be implemented; \code{response_model}, a character string specify what outcome model to use
-if \code{eff_aug = TRUE}, \code{response_model} could be "lasso" or "linear";
+if \code{eff_aug = TRUE}, \code{response_model} could be "lasso", "linear", or "randomForest";
 \code{contrast_builder_folds}, the number of folds used in cross validation when \code{response_model = "lasso"}.}
 }
 \value{
 An S3 object of class "mp", which contains the information of the fitted model. It could be supplied
-to some other functions in mperosnalized package for further analysis or prediction.
+to some other functions in mpersonalized package for further analysis or prediction.
 
 \item{penalty_parameter_sequence}{A matrix object with each row denoting a
 configuration of the penalty parameters.}
@@ -180,12 +180,12 @@ sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
 Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 
 # fit different rules with SGL penalty for this meta-analysis problem
-mp_mod_diff = metaDRG(problem = "meta-analysis",
+mp_mod_diff = mpersonalized(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                             penalty = "SGL", single_rule = FALSE)
 
 # fir a single rule with lasso penalty
-mp_mod_single = metaDRG(problem = "meta-analysis",
+mp_mod_single = mpersonalized(problem = "meta-analysis",
                               Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                               penalty = "lasso", single_rule = TRUE)
 set.seed(NULL)

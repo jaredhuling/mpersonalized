@@ -1,5 +1,5 @@
 contrast_builder = function(X, Y, ori_Trt, P, eff_aug = TRUE,
-                            response_model = c("lasso", "linear"),
+                            response_model = c("lasso", "linear", "randomForest"),
                             type = c("continuous", "binary"),
                             contrast_builder_folds = 10)
 {
@@ -48,6 +48,39 @@ contrast_builder = function(X, Y, ori_Trt, P, eff_aug = TRUE,
       Trteff0 = predict(glmmod, newdat0, type = "response")
       newdat1 = data.frame(x = CbX1)
       Trteff1 = predict(glmmod, newdat1, type = "response")
+    } else if (response_model == "randomForest")
+    {
+      dat = data.frame(y = Y, x = X, Trt = as.character(Trt))
+      if (type == "continuous")
+      {
+        rfmod = randomForest(y ~ ., data = dat, family = gaussian())
+        prd_type <- "response"
+
+        Trt_levels <- sort(unique(Trt))
+
+        CbX0_rf <- data.frame(x = X, Trt = as.character(Trt_levels[1]))
+        CbX1_rf <- data.frame(x = X, Trt = as.character(Trt_levels[2]))
+
+        Trteff0 = unname(predict(rfmod, CbX0_rf, type = prd_type))
+        Trteff1 = unname(predict(rfmod, CbX1_rf, type = prd_type))
+      }
+
+      if (type == "binary")
+      {
+        prd_type <- "prob"
+        rfmod = randomForest(y ~ ., data = dat, family = binomial())
+
+        Trt_levels <- sort(unique(Trt))
+
+        CbX0_rf <- data.frame(x = X, Trt = as.character(Trt_levels[1]))
+        CbX1_rf <- data.frame(x = X, Trt = as.character(Trt_levels[2]))
+
+        Trteff0 = unname(predict(rfmod, CbX0_rf, type = prd_type)[,2])
+        Trteff1 = unname(predict(rfmod, CbX1_rf, type = prd_type)[,2])
+      }
+
+
+
     }
 
     Y_adj = Y - (1 - P) * Trteff1 - P * Trteff0

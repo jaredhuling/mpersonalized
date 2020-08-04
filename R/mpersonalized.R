@@ -88,7 +88,7 @@
 #' contrast function. In \code{contrast_builder_control},
 #' the following parameters could be supplied: \code{eff_aug}, a logical value whether efficiency augmentation
 #' should be implemented; \code{response_model}, a character string specify what outcome model to use
-#' if \code{eff_aug = TRUE}, \code{response_model} could be "lasso" or "linear";
+#' if \code{eff_aug = TRUE}, \code{response_model} could be "lasso", "linear", or "randomForest";
 #' \code{contrast_builder_folds}, the number of folds used in cross validation when \code{response_model = "lasso"}.
 #' @param num_lambda1 If \code{lambda1} is not specified by user, the user can still specify the length of the
 #' \code{lambda1} sequence. The default length is 10.
@@ -103,7 +103,7 @@
 #' @import glmnet SGL Matrix
 #'
 #' @return An S3 object of class "mp", which contains the information of the fitted model. It could be supplied
-#' to some other functions in mperosnalized package for further analysis or prediction.
+#' to some other functions in mpersonalized package for further analysis or prediction.
 #'
 #' \item{penalty_parameter_sequence}{A matrix object with each row denoting a
 #' configuration of the penalty parameters.}

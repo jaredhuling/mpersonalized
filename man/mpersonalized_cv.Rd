@@ -71,7 +71,7 @@ to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or 
 
 \item{penalty}{For different rules, the penalty could be "lasso", "GL", "SGL", "fused",
 "lasso+fused", "GL+fused", "SGL+fused", or "SGL+SL". For single rule, the penalty could only be "lasso".
-For \code{penalty = "none"}, use function \code{metaDRG} instead.
+For \code{penalty = "none"}, use function \code{mpersonalized} instead.
 User should always input \code{penalty} and then supply correponding penalty parameters sequence
 if needed.}
 
@@ -117,7 +117,7 @@ In \code{admm_control}, the following parameters can be supplied:
 contrast function. In \code{contrast_builder_control},
 the following parameters could be supplied: \code{eff_aug}, a logical value whether efficiency augmentation
 should be implemented; \code{response_model}, a character string specify what outcome model to use
-if \code{eff_aug = TRUE}, \code{response_model} could be "lasso" or "linear";
+if \code{eff_aug = TRUE}, \code{response_model} could be "lasso", "linear", or "randomForest";
 \code{contrast_builder_folds}, the number of folds used in cross validation when \code{response_model = "lasso"}.}
 }
 \value{
