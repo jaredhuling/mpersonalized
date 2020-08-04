@@ -137,25 +137,29 @@
 #' @export
 
 mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
-                         X, Trt, P = NULL,
-                         Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL, simplify = FALSE),
-                         typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
-                         penalty = c("none", "lasso", "GL", "SGL", "fused",
-                                     "SGL+SL",
-                                     "lasso+fused", "GL+fused", "SGL+fused"),
-                         lambda1 = NULL, lambda2 = NULL, tau0 = NULL,
-                         single_rule_lambda = NULL,
-                         num_lambda1 = ifelse(!is.null(lambda1), length(lambda1), 10),
-                         num_lambda2 = ifelse(!is.null(lambda2), length(lambda2), 10),
-                         num_tau0    = ifelse(!is.null(tau0), length(tau0), 11),
-                         min_tau     = 1e-2,
-                         num_single_rule_lambda = ifelse(!is.null(single_rule_lambda), length(single_rule_lambda), 50),
-                         alpha = NULL, single_rule = FALSE,
-                         admm_control = NULL,
-                         contrast_builder_control = NULL){
+                   X, Trt, P = NULL,
+                   Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL, simplify = FALSE),
+                   typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
+                   penalty = c("none", "lasso", "GL", "SGL", "fused",
+                               "SGL+SL",
+                               "lasso+fused", "GL+fused", "SGL+fused"),
+                   surrogate = c("squared_error", "logistic"),
+                   standardize = TRUE,
+                   lambda1 = NULL, lambda2 = NULL, tau0 = NULL,
+                   single_rule_lambda = NULL,
+                   num_lambda1 = ifelse(!is.null(lambda1), length(lambda1), 10),
+                   num_lambda2 = ifelse(!is.null(lambda2), length(lambda2), 10),
+                   num_tau0    = ifelse(!is.null(tau0), length(tau0), 11),
+                   min_tau     = 1e-2,
+                   num_single_rule_lambda = ifelse(!is.null(single_rule_lambda), length(single_rule_lambda), 50),
+                   alpha = NULL, single_rule = FALSE,
+                   admm_control = NULL,
+                   contrast_builder_control = NULL)
+{
 
-  penalty = match.arg(penalty)
-  problem = match.arg(problem)
+  penalty   = match.arg(penalty)
+  problem   = match.arg(problem)
+  surrogate = match.arg(surrogate)
 
   if (problem == "multiple outcomes"){
 
@@ -201,7 +205,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
   #construct contrast for the data
   #have to use for loop because we need to use do.call to input the
   Conlist = vector("list", q)
-  for (j in 1:q){
+  for (j in 1:q)
+  {
     Conlist[[j]] = do.call(contrast_builder, c(list(X = Xlist[[j]],
                                                     Y = Ylist[[j]],
                                                     ori_Trt = Trtlist[[j]],
@@ -210,17 +215,20 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                                                contrast_builder_control))
   }
 
+  standardize <- standardize & !(surrogate == "logistic")
+
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
-                                           single_rule = single_rule)
+                                           single_rule = single_rule, standardize = standardize)
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
+  Wlist      = standardized_data$Wlist
 
   if (single_rule == TRUE)
   {
 
     Ybar = standardized_data$Ybar
     Xbar = standardized_data$Xbar
-    Xsd = standardized_data$Xsd
+    Xsd  = standardized_data$Xsd
 
     if (penalty != "lasso" & penalty != "none")
       stop("When single rule = TRUE, the penalty must be lasso or none with default as none!")
@@ -231,15 +239,16 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
     if (penalty == "lasso"){
 
       if (is.null(single_rule_lambda)){
-        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                          penalty = penalty, single_rule = single_rule,
-                                         num_single_rule_lambda = num_single_rule_lambda)
+                                         num_single_rule_lambda = num_single_rule_lambda, surrogate = surrogate,
+                                         standardize = standardize)
 
         single_rule_lambda = lambda_default$single_rule_lambda
       }
 
-      full_model = single_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
-                                            Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda)
+      full_model = single_rule_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist, Wlist = Wlist,
+                                            Ybar = Ybar, Xbar = Xbar, Xsd = Xsd, lambda = single_rule_lambda, surrogate = surrogate)
 
       penalty_parameter_sequence = as.matrix(single_rule_lambda)
       colnames(penalty_parameter_sequence) = "single_rule_lambda"
@@ -249,7 +258,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
-                        problem = problem)
+                        problem = problem, surrogate = surrogate)
 
     } else if (penalty == "none"){
 
@@ -265,14 +274,14 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty = penalty, single_rule = TRUE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
-                        problem = problem)
+                        problem = problem, surrogate = surrogate)
     }
 
   } else {
 
     Ybarlist = standardized_data$Ybarlist
     Xbarlist = standardized_data$Xbarlist
-    Xsdlist = standardized_data$Xsdlist
+    Xsdlist  = standardized_data$Xsdlist
 
     if (!is.null(single_rule_lambda))
         warning("When single rule = FALSE, the value for single_rule_lambda is ignored!")
@@ -291,7 +300,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
-                        problem = problem)
+                        problem = problem, surrogate = surrogate)
 
     } else if (penalty %in% c("fused", "lasso+fused", "GL+fused", "SGL+fused")) {
 
@@ -337,10 +346,10 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       if (is.null(lambda1) | is.null(lambda2))
       {
-        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, num_lambda2 = num_lambda2,
-                                         lambda1 = lambda1, lambda2 = lambda2)
+                                         lambda1 = lambda1, lambda2 = lambda2, surrogate = surrogate, standardize = standardize)
 
         if (is.null(lambda1))
           lambda1 = lambda_default$lambda1
@@ -351,7 +360,8 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
 
       full_model = meta_method(modelYlist = modelYlist, modelXlist = modelXlist,
                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
-                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha, admm_control = admm_control)
+                               lambda1 = lambda1, lambda2 = lambda2, alpha = alpha, admm_control = admm_control,
+                               surrogate = surrogate)
 
       penalty_parameter_sequence = full_model$penalty_parameter_sequence
 
@@ -360,7 +370,7 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
-                        problem = problem)
+                        problem = problem, surrogate = surrogate)
 
     } else if (penalty %in% c("lasso", "GL", "SGL", "SGL+SL")){
 
@@ -407,18 +417,18 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
       }
 
       if (is.null(lambda1)){  #  & penalty != "SGL+SL"
-        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
-                                         num_lambda1 = num_lambda1, lambda1 = lambda1)
+                                         num_lambda1 = num_lambda1, lambda1 = lambda1, surrogate = surrogate, standardize = standardize)
 
         lambda1 = lambda_default$lambda1
       }
 
       if (penalty != "SGL+SL")
       {
-        full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+        full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist, Wlist = Wlist,
                                                Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
-                                               lambda = lambda1, alpha = alpha)
+                                               lambda = lambda1, alpha = alpha, surrogate = surrogate, standardize = standardize)
 
         penalty_parameter_sequence = as.matrix(lambda1)
         colnames(penalty_parameter_sequence) = "lambda1"
@@ -430,20 +440,25 @@ mpersonalized = function(problem = c("meta-analysis", "multiple outcomes"),
           tau0 <- gen_tau0(num_tau0, min_tau)
         }
 
-        full_model = sparse_group_fused_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+        full_model = sparse_group_fused_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist, Wlist = Wlist,
                                                      Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                                      lambda = lambda1, alpha = alpha, tau0 = tau0,
-                                                     nlambda = num_lambda1)
+                                                     nlambda = num_lambda1, surrogate = surrogate, standardize = standardize)
 
         penalty_parameter_sequence = full_model$penalty_parameter_sequence
+
+        lambda_list <- full_model$lambda_list
       }
+
+      if (!exists("lambda_list")) lambda_list <- NULL
+
 
       model_info = list(interceptlist = full_model$interceptlist, betalist = full_model$betalist,
                         penalty_parameter_sequence = penalty_parameter_sequence,
                         alpha = alpha, penalty = penalty, single_rule = FALSE,
                         number_covariates = p, number_studies_or_outcomes = q,
                         Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist, Plist = Plist,
-                        problem = problem)
+                        problem = problem, lambda_list = lambda_list, surrogate = surrogate)
     }
   }
 

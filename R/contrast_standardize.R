@@ -1,5 +1,8 @@
-contrast_standardize = function(Conlist, Xlist, single_rule){
-  if (single_rule == FALSE){
+contrast_standardize = function(Conlist, Xlist, single_rule, standardize = TRUE)
+{
+  #surrogate <- match.arg(surrogate)
+  if (single_rule == FALSE)
+  {
     sConlist = lapply(Conlist, function(y) as.numeric(y > 0))
     Wlist = lapply(Conlist, abs)
 
@@ -17,18 +20,36 @@ contrast_standardize = function(Conlist, Xlist, single_rule){
 
     std_Ylist = mapply(function(y, mean) y - mean,
                        y = sConlist, mean = Ybarlist, SIMPLIFY = FALSE)
+
+
     std_Xlist = mapply(function(x, mean) sweep(x, 2, mean, '-'),
                        x = std_Xlist, mean = Xbarlist, SIMPLIFY = FALSE)
 
-    modelYlist = mapply(function(y, w) y * sqrt(w),
-                        y = std_Ylist, w = adj_Wlist, SIMPLIFY = FALSE)
-    modelXlist = mapply(function(x, w) sweep(x, 1, sqrt(w), '*'),
-                        x = std_Xlist, w = adj_Wlist, SIMPLIFY = FALSE)
+    if (standardize)
+    {
+      modelYlist = mapply(function(y, w) y * sqrt(w),
+                          y = std_Ylist, w = adj_Wlist, SIMPLIFY = FALSE)
+      modelXlist = mapply(function(x, w) sweep(x, 1, sqrt(w), '*'),
+                          x = std_Xlist, w = adj_Wlist, SIMPLIFY = FALSE)
+      Wlist <- lapply(Wlist, function(lst) rep(1, length(lst)))
+    } else
+    {
+      modelYlist <- sConlist
+      modelXlist <- Xlist
+
+      Xbarlist <- lapply(Xbarlist, function(lst) rep(0, length(lst)))
+      Ybarlist <- lapply(Ybarlist, function(lst) rep(0, length(lst)))
+      Xsdlist  <- lapply(Xsdlist, function(lst)  rep(1, length(lst)))
+    }
+
+
 
     return(list(modelYlist = modelYlist, modelXlist = modelXlist,
+                Wlist = Wlist,
                 Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist))
 
-  } else {
+  } else
+  {
     sConlist = lapply(Conlist, function(y) as.numeric(y > 0))
     Wlist = lapply(Conlist, function(y) abs(y))
 
@@ -49,12 +70,26 @@ contrast_standardize = function(Conlist, Xlist, single_rule){
     std_Ylist = lapply(sConlist, function(y) y - Ybar)
     std_Xlist = lapply(std_Xlist, function(x) sweep(x, 2, Xbar, '-'))
 
-    modelYlist = mapply(function(y, w) y * sqrt(w),
-                        y = std_Ylist, w = adj_Wlist, SIMPLIFY = FALSE)
-    modelXlist = mapply(function(x, w) sweep(x, 1, sqrt(w), '*'),
-                        x = std_Xlist, w = adj_Wlist, SIMPLIFY = FALSE)
+    if (standardize)
+    {
+      modelYlist = mapply(function(y, w) y * sqrt(w),
+                          y = std_Ylist, w = adj_Wlist, SIMPLIFY = FALSE)
+      modelXlist = mapply(function(x, w) sweep(x, 1, sqrt(w), '*'),
+                          x = std_Xlist, w = adj_Wlist, SIMPLIFY = FALSE)
+
+      Wlist <- lapply(Wlist, function(lst) rep(1, length(lst)))
+    } else
+    {
+      modelYlist <- sConlist
+      modelXlist <- Xlist
+
+      Xsd  <- rep(1, length(Xsd))
+      Xbar <- rep(0, length(Xbar))
+      Ybar <- rep(0, length(Ybar))
+    }
 
     return(list(modelYlist = modelYlist, modelXlist = modelXlist,
+                Wlist = Wlist,
                 Ybar = Ybar, Xbar = Xbar, Xsd = Xsd))
   }
 }

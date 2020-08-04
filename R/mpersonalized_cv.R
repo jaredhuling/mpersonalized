@@ -13,7 +13,7 @@
 #' @param Trt Treatment vector that should be supplied when \code{problem = "multiple outcomes"},
 #' which should be coded as 0 or 1.
 #' @param P Propensity score vector when \code{problem = "multiple outcomes"}. If not supplied,
-#' then study is treated as randomzied trial and the propensity score is estimated as the proportion
+#' then study is treated as randomized trial and the propensity score is estimated as the proportion
 #' of 1's in \code{Trt} for every subject.
 #' @param Xlist A list object that should be supplied when \code{problem = "meta-analysis"},
 #' with \eqn{k}th element denoting the covariate matrix of study \eqn{k}.
@@ -107,6 +107,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             penalty = c("lasso", "GL", "SGL", "fused",
                                       "lasso+fused", "GL+fused", "SGL+fused",
                                       "SGL+SL"),
+                      surrogate = c("squared_error", "logistic"),
+                      standardize = TRUE,
                             lambda1 = NULL, lambda2 = NULL, tau0 = NULL,
                             single_rule_lambda = NULL,
                             num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
@@ -120,6 +122,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
   penalty = match.arg(penalty)
   problem = match.arg(problem)
+  surrogate  <- match.arg(surrogate)
 
   if (problem == "multiple outcomes"){
 
@@ -162,6 +165,8 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
   q = length(Xlist)
   p = dim(Xlist[[1]])[2]
 
+  standardize <- standardize & !(surrogate == "logistic")
+
 
   #construct contrast for the data
   Conlist = vector("list", q)
@@ -176,9 +181,10 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
 
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
-                                           single_rule = single_rule)
+                                           single_rule = single_rule, standardize = standardize)
   modelYlist = standardized_data$modelYlist
   modelXlist = standardized_data$modelXlist
+  Wlist      = standardized_data$Wlist
 
   #check whether the information provided is correct and set up the value for lambdas if not provided
   if (single_rule == TRUE){
@@ -194,7 +200,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       warning("When single rule = TRUE, the value for lambda1, lambda2, alpha are ignored!")
 
     if (is.null(single_rule_lambda)){
-      lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+      lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                        penalty = penalty, single_rule = single_rule,
                                        num_single_rule_lambda = num_single_rule_lambda)
 
@@ -255,7 +261,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       }
 
       if (is.null(lambda1) | is.null(lambda2)){
-        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, num_lambda2 = num_lambda2,
                                          lambda1 = lambda1, lambda2 = lambda2)
@@ -312,7 +318,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       }
 
       if (is.null(lambda1)){ # & penalty != "SGL+SL"){
-        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist,
+        lambda_default = lambda_estimate(modelXlist = modelXlist, modelYlist = modelYlist, Wlist = Wlist,
                                          penalty = penalty, single_rule = single_rule, alpha = alpha,
                                          num_lambda1 = num_lambda1, lambda1 = lambda1)
 
@@ -393,6 +399,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, single_rule = single_rule)
     cv_modelYlist = cv_standardized_data$modelYlist
     cv_modelXlist = cv_standardized_data$modelXlist
+    cv_modelWlist = cv_standardized_data$Wlist
 
     #transform contrast into binary data for the left out fold
     left_sConlist = lapply(left_Conlist, function(y) as.numeric(y > 0))
@@ -438,7 +445,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
       } else if (penalty %in% c("lasso", "SGL", "GL")) {
 
-        cv_model = sparse_group_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
+        cv_model = sparse_group_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist, Wlist = cv_modelWlist,
                                              Ybarlist = cv_Ybarlist, Xbarlist = cv_Xbarlist, Xsdlist = cv_Xsdlist,
                                              lambda = lambda1, alpha = alpha)
         cv_interceptlist = cv_model$interceptlist
@@ -451,7 +458,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                                                               beta = split(cv_betalist[[ind]], row(cv_betalist[[ind]])), SIMPLIFY = FALSE)))
 
       }  else if (penalty %in% c("SGL+SL")) {
-        cv_model = sparse_group_fused_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist,
+        cv_model = sparse_group_fused_lasso_method(modelYlist = cv_modelYlist, modelXlist = cv_modelXlist, Wlist = cv_modelWlist,
                                                    Ybarlist = cv_Ybarlist, Xbarlist = cv_Xbarlist, Xsdlist = cv_Xsdlist,
                                                    lambda = lambda1, alpha = alpha, tau0 = tau0, nlambda = num_lambda1)
         cv_interceptlist = cv_model$interceptlist
@@ -545,7 +552,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
     } else if (penalty %in% c("lasso", "SGL", "GL")){
 
-      full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+      full_model = sparse_group_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist, Wlist = Wlist,
                                              Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                              lambda = lambda1, alpha = alpha)
 
@@ -571,7 +578,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
       opt_ind = which(tune_cost == min(tune_cost), arr.ind = TRUE)
       opt_ind1 = opt_ind[1]; opt_ind2 = opt_ind[2]
 
-      full_model = sparse_group_fused_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist,
+      full_model = sparse_group_fused_lasso_method(modelYlist = modelYlist, modelXlist = modelXlist, Wlist = Wlist,
                                                    Ybarlist = Ybarlist, Xbarlist = Xbarlist, Xsdlist = Xsdlist,
                                                    lambda = lambda1, alpha = alpha, tau0 = tau0[opt_ind2],
                                                    nlambda = num_lambda1)

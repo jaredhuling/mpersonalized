@@ -4,8 +4,7 @@
 \alias{predict.mp_cv}
 \title{Prediction for a Fitted "mp_cv" Object}
 \usage{
-\method{predict}{mp_cv}(object, newx = NULL, weight = NULL,
-  overall_rec = TRUE, ...)
+\method{predict}{mp_cv}(object, newx = NULL, weight = NULL, overall_rec = TRUE, ...)
 }
 \arguments{
 \item{object}{A fitted "mp_cv" object returned by "mpersonalized_cv" function}

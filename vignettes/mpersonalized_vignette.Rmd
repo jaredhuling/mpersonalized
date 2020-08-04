@@ -25,25 +25,18 @@ In the setting of a single study or outcome, the contrast classification framewo
 \end{equation}
 where $\hat{C}$ is the estimator of the usually unknown contrast function $C(X) = E(Y|A=1, X) - E(Y|A=0, X)$ and $g(X)$ is a treatment recommendation rule. Then, given a subject with baseline covariates $x$, $A = 1$ is recommended if $g(x) > 0.5$ and vice versa. Althgouh adapting the framework to more complicated settings, `mpersonalized` incorporates the whole pipeline, from estimation of the contrast function to fitting of treatment rules to eventually prediction for new subjects, in one single package so as to facilitate the usage of this framework.
 
-The main functions in our package are `mpersonalized` and `mpersonalized_cv` and this vignette will focus on the usage of the main functions. Various arguments can be passed to these functions to best meet user requirements. We divide the optional arguments into different groups and place them in different sections of the vignette to ease understanding. The vignette is structured as follows: in section \ref{section:installation}, we briefly describe how to install `mpersonalized` package; in section \ref{section:quick example}, we give a quick example to demonstrate the typical usage; in section \ref{section:data arguments} and section \ref{section:model arguments}, we introduce the arguments related to data input and model specification, respectively; in section \ref{section:penalty parameter}, different ways of sepcifying penalty parameter sequence are introduced; finally, in section \ref{section:S3 methods}, we provide users with the avaiable S3 methods for return values from `mpersonalized` and `mpersonalized_cv`. There are also some more sophisticated arguments, which do not usually requires specification from users, and thus they are covered in Appendix.
+The main functions in our package are `mpersonalized` and `mpersonalized_cv` and this vignette will focus on the usage of the main functions. Various arguments can be passed to these functions to best meet user requirements. We divide the optional arguments into different groups and place them in different sections of the vignette to ease understanding. The vignette is structured as follows: in section \ref{section:installation}, we briefly describe how to install `mpersonalized` package; in section \ref{section:quick example}, we give a quick example to demonstrate the typical usage; in section \ref{section:data arguments} and section \ref{section:model arguments}, we introduce the arguments related to data input and model specification, respectively; in section \ref{section:penalty parameter}, different ways of specifying penalty parameter sequence are introduced; finally, in section \ref{section:S3 methods}, we provide users with the avaiable S3 methods for return values from `mpersonalized` and `mpersonalized_cv`. There are also some more sophisticated arguments, which do not usually requires specification from users, and thus they are covered in Appendix.
 
 This vignette is aimed to help users understand how `mpersonalized` works and how to apply it to a new dataset or problem according to specific requirements. Various examples will be provided and most options will be covered. To learn more about the package, we recommended users to the reference manual. 
 
 
 # Installation \label{section:installation}
 
-`mpersonalized` can be installed from Github repository "chenshengkuang/mpersonalized" now. In order to do that, users need to install R package `devtools` first. `devtools` could be downloaded from CRAN by the following command:
+`mpersonalized` can be installed from the command line via (make sure the .tar.gz file is in the working directory first). First, the user must have installed the following R packages `c("SGL", "caret", "ggplot2", "gridExtra")` from CRAN and the `genlasso` package from github via `devtools::install_github("glmgen/genlasso")`. Then finally, to install mpersonalized, run:
 ```{R install devtools, eval = FALSE, echo = TRUE}
-install.packages("devtools")
+install.packages("mpersonalized_0.1.0.tar.gz", type = "source", repos = NULL)
 ```
 
-When `devtools` has been installed, we could then install `mpersonalized` package using commands:
-```{R install mpersonalized, eval = FALSE, echo = TRUE}
-library(devtools)
-install_github("chenshengkuang/mpersonalized")
-```
-
-In the future, there might be frequent updates of the package. To update `mpersonalized`, install it again using the above commands.
 
 # A Quick Example \label{section:quick example}
 

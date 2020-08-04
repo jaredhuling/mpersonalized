@@ -4,19 +4,35 @@
 \alias{mpersonalized}
 \title{A General Framework to Solve Personalized Medicine in the Settings of Meta-analysis/Multiple Outcomes}
 \usage{
-mpersonalized(problem = c("meta-analysis", "multiple outcomes"), X, Trt,
-  P = NULL, Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist),
-  NULL, simplify = FALSE), typelist = replicate(length(Xlist),
-  "continuous", simplify = FALSE), penalty = c("none", "lasso", "GL",
-  "SGL", "fused", "SGL+SL", "lasso+fused", "GL+fused", "SGL+fused"),
-  lambda1 = NULL, lambda2 = NULL, tau0 = NULL,
-  single_rule_lambda = NULL, num_lambda1 = ifelse(!is.null(lambda1),
-  length(lambda1), 10), num_lambda2 = ifelse(!is.null(lambda2),
-  length(lambda2), 10), num_tau0 = ifelse(!is.null(tau0), length(tau0),
-  11), min_tau = 0.01,
+mpersonalized(
+  problem = c("meta-analysis", "multiple outcomes"),
+  X,
+  Trt,
+  P = NULL,
+  Xlist,
+  Ylist,
+  Trtlist,
+  Plist = replicate(length(Xlist), NULL, simplify = FALSE),
+  typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
+  penalty = c("none", "lasso", "GL", "SGL", "fused", "SGL+SL", "lasso+fused",
+    "GL+fused", "SGL+fused"),
+  surrogate = c("squared_error", "logistic"),
+  standardize = TRUE,
+  lambda1 = NULL,
+  lambda2 = NULL,
+  tau0 = NULL,
+  single_rule_lambda = NULL,
+  num_lambda1 = ifelse(!is.null(lambda1), length(lambda1), 10),
+  num_lambda2 = ifelse(!is.null(lambda2), length(lambda2), 10),
+  num_tau0 = ifelse(!is.null(tau0), length(tau0), 11),
+  min_tau = 0.01,
   num_single_rule_lambda = ifelse(!is.null(single_rule_lambda),
-  length(single_rule_lambda), 50), alpha = NULL, single_rule = FALSE,
-  admm_control = NULL, contrast_builder_control = NULL)
+    length(single_rule_lambda), 50),
+  alpha = NULL,
+  single_rule = FALSE,
+  admm_control = NULL,
+  contrast_builder_control = NULL
+)
 }
 \arguments{
 \item{problem}{A character string specifiy whether user want to solve "meta-analysis" or
@@ -164,12 +180,12 @@ sim_dat  = simulated_dataset(n = 200, problem = "meta-analysis")
 Xlist = sim_dat$Xlist; Ylist = sim_dat$Ylist; Trtlist = sim_dat$Trtlist
 
 # fit different rules with SGL penalty for this meta-analysis problem
-mp_mod_diff = mpersonalized(problem = "meta-analysis",
+mp_mod_diff = metaDRG(problem = "meta-analysis",
                             Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                             penalty = "SGL", single_rule = FALSE)
 
 # fir a single rule with lasso penalty
-mp_mod_single = mpersonalized(problem = "meta-analysis",
+mp_mod_single = metaDRG(problem = "meta-analysis",
                               Xlist = Xlist, Ylist = Ylist, Trtlist = Trtlist,
                               penalty = "lasso", single_rule = TRUE)
 set.seed(NULL)

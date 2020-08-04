@@ -4,19 +4,36 @@
 \alias{mpersonalized_cv}
 \title{Cross Validation for \code{mpersonalized}}
 \usage{
-mpersonalized_cv(problem = c("meta-analysis", "multiple outcomes"), X,
-  Trt, P = NULL, Xlist, Ylist, Trtlist,
+mpersonalized_cv(
+  problem = c("meta-analysis", "multiple outcomes"),
+  X,
+  Trt,
+  P = NULL,
+  Xlist,
+  Ylist,
+  Trtlist,
   Plist = replicate(length(Xlist), NULL, simplify = FALSE),
   typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
-  penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused",
-  "SGL+fused", "SGL+SL"), lambda1 = NULL, lambda2 = NULL,
-  tau0 = NULL, single_rule_lambda = NULL,
+  penalty = c("lasso", "GL", "SGL", "fused", "lasso+fused", "GL+fused", "SGL+fused",
+    "SGL+SL"),
+  surrogate = c("squared_error", "logistic"),
+  standardize = TRUE,
+  lambda1 = NULL,
+  lambda2 = NULL,
+  tau0 = NULL,
+  single_rule_lambda = NULL,
   num_lambda1 = ifelse(!is.null(lambda1), length(lambda1), 10),
   num_lambda2 = ifelse(!is.null(lambda2), length(lambda2), 10),
-  num_tau0 = ifelse(!is.null(tau0), length(tau0), 11), min_tau = 0.01,
+  num_tau0 = ifelse(!is.null(tau0), length(tau0), 11),
+  min_tau = 0.01,
   num_single_rule_lambda = ifelse(!is.null(single_rule_lambda),
-  length(single_rule_lambda), 50), alpha = NULL, single_rule = FALSE,
-  cv_folds = 5, admm_control = NULL, contrast_builder_control = NULL)
+    length(single_rule_lambda), 50),
+  alpha = NULL,
+  single_rule = FALSE,
+  cv_folds = 5,
+  admm_control = NULL,
+  contrast_builder_control = NULL
+)
 }
 \arguments{
 \item{problem}{A character string specifiy whether user want to solve "meta-analysis" or
@@ -31,7 +48,7 @@ with rows indicating subjects and columns indicating covariates.}
 which should be coded as 0 or 1.}
 
 \item{P}{Propensity score vector when \code{problem = "multiple outcomes"}. If not supplied,
-then study is treated as randomzied trial and the propensity score is estimated as the proportion
+then study is treated as randomized trial and the propensity score is estimated as the proportion
 of 1's in \code{Trt} for every subject.}
 
 \item{Xlist}{A list object that should be supplied when \code{problem = "meta-analysis"},
@@ -54,7 +71,7 @@ to the \eqn{k}th element in \code{Ylist}. Each element could be "continuous" or 
 
 \item{penalty}{For different rules, the penalty could be "lasso", "GL", "SGL", "fused",
 "lasso+fused", "GL+fused", "SGL+fused", or "SGL+SL". For single rule, the penalty could only be "lasso".
-For \code{penalty = "none"}, use function \code{mpersonalized} instead.
+For \code{penalty = "none"}, use function \code{metaDRG} instead.
 User should always input \code{penalty} and then supply correponding penalty parameters sequence
 if needed.}
 

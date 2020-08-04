@@ -1,10 +1,13 @@
-meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda1, lambda2, alpha, admm_control){
+meta_method = function(modelYlist, modelXlist, Ybarlist, Xbarlist, Xsdlist, lambda1, lambda2, alpha, admm_control,
+                       surrogate = c("squared_error", "logistic"))
+{
 
+  surrogate <- match.arg(surrogate)
   q = length(modelXlist)
   p = dim(modelXlist[[1]])[2]
 
   tempx = bdiag(modelXlist)
-  x = matrix(0, nrow = nrow(tempx),ncol = ncol(tempx))
+  x = matrix(0, nrow = nrow(tempx), ncol = ncol(tempx))
   for (i in 1:p)
     for (j in 1:q)
       x[,((i-1)*q+j)] = tempx[,((j-1)*p+i)]
