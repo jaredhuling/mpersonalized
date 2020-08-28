@@ -32,6 +32,7 @@ mpersonalized_cv(
   single_rule = FALSE,
   cv_folds = 5,
   admm_control = NULL,
+  joint_contrast = FALSE,
   contrast_builder_control = NULL
 )
 }
@@ -112,6 +113,8 @@ will be used depending on \code{penalty}.}
 In \code{admm_control}, the following parameters can be supplied:
 \code{abs.tol}, absolute tolerance; \code{rel.tol}, relative tolerance; \code{maxit}, maximum number of iterations;
 \code{rho}, Lagrangian parameter.}
+
+\item{joint_contrast}{Should the contrast function be fit jointly? \code{TRUE} or \code{FALSE}}
 
 \item{contrast_builder_control}{A list of parameters which user can specify to control estimation of
 contrast function. In \code{contrast_builder_control},

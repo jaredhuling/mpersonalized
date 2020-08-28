@@ -48,6 +48,7 @@
 #' In \code{admm_control}, the following parameters can be supplied:
 #' \code{abs.tol}, absolute tolerance; \code{rel.tol}, relative tolerance; \code{maxit}, maximum number of iterations;
 #' \code{rho}, Lagrangian parameter.
+#' @param joint_contrast Should the contrast function be fit jointly? \code{TRUE} or \code{FALSE}
 #' @param contrast_builder_control A list of parameters which user can specify to control estimation of
 #' contrast function. In \code{contrast_builder_control},
 #' the following parameters could be supplied: \code{eff_aug}, a logical value whether efficiency augmentation
@@ -105,10 +106,10 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             Xlist, Ylist, Trtlist, Plist = replicate(length(Xlist), NULL, simplify = FALSE),
                             typelist = replicate(length(Xlist), "continuous", simplify = FALSE),
                             penalty = c("lasso", "GL", "SGL", "fused",
-                                      "lasso+fused", "GL+fused", "SGL+fused",
-                                      "SGL+SL"),
-                      surrogate = c("squared_error", "logistic"),
-                      standardize = TRUE,
+                                        "lasso+fused", "GL+fused", "SGL+fused",
+                                        "SGL+SL"),
+                            surrogate = c("squared_error", "logistic"),
+                            standardize = TRUE,
                             lambda1 = NULL, lambda2 = NULL, tau0 = NULL,
                             single_rule_lambda = NULL,
                             num_lambda1 = ifelse(!is.null(lambda1), length(lambda1),10),
@@ -118,7 +119,9 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
                             num_single_rule_lambda = ifelse(!is.null(single_rule_lambda), length(single_rule_lambda), 50),
                             alpha = NULL, single_rule = FALSE, cv_folds = 5,
                             admm_control = NULL,
-                            contrast_builder_control = NULL){
+                            joint_contrast = FALSE,
+                            contrast_builder_control = NULL)
+{
 
   penalty = match.arg(penalty)
   problem = match.arg(problem)
@@ -169,15 +172,29 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
 
 
   #construct contrast for the data
-  Conlist = vector("list", q)
-  for (j in 1:q){
-    Conlist[[j]] = do.call(contrast_builder, c(list(X = Xlist[[j]],
-                                                    Y = Ylist[[j]],
-                                                    ori_Trt = Trtlist[[j]],
-                                                    P = Plist[[j]],
-                                                    type = typelist[[j]]),
-                                               contrast_builder_control))
+
+  if (joint_contrast)
+  {
+    Conlist <- do.call(contrast_builder_joint, c(list(Xlist = Xlist,
+                                                      Ylist = Ylist,
+                                                      ori_Trtlist = Trtlist,
+                                                      Plist = Plist,
+                                                      type = typelist[[1]]),
+                                                 contrast_builder_control))
+  } else
+  {
+    Conlist = vector("list", q)
+    for (j in 1:q){
+      Conlist[[j]] = do.call(contrast_builder, c(list(X = Xlist[[j]],
+                                                      Y = Ylist[[j]],
+                                                      ori_Trt = Trtlist[[j]],
+                                                      P = Plist[[j]],
+                                                      type = typelist[[j]]),
+                                                 contrast_builder_control))
+    }
   }
+
+
 
 
   standardized_data = contrast_standardize(Conlist = Conlist, Xlist = Xlist,
@@ -359,6 +376,7 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
   #carry out method for each cross validation fold
   for (k in 1:cv_folds){
 
+
     cv_Xlist = vector("list", q); left_Xlist = vector("list", q)
     cv_Ylist = vector("list", q); left_Ylist = vector("list", q)
     cv_Trtlist = vector("list", q); left_Trtlist = vector("list", q)
@@ -379,21 +397,42 @@ mpersonalized_cv = function(problem = c("meta-analysis", "multiple outcomes"),
     cv_Conlist = vector("list", q)
     left_Conlist = vector("list", q)
 
-    for (j in 1:q){
+    if (joint_contrast)
+    {
 
-      cv_Conlist[[j]] = do.call(contrast_builder, c(list(X = cv_Xlist[[j]],
-                                                         Y = cv_Ylist[[j]],
-                                                         ori_Trt = cv_Trtlist[[j]],
-                                                         P = cv_Plist[[j]],
-                                                         type = typelist[[j]]),
-                                                    contrast_builder_control))
+      cv_Conlist <- do.call(contrast_builder_joint, c(list(Xlist = cv_Xlist,
+                                                           Ylist = cv_Ylist,
+                                                           ori_Trtlist = cv_Trtlist,
+                                                           Plist = cv_Plist,
+                                                           type = typelist[[1]]),
+                                                      contrast_builder_control))
 
-      left_Conlist[[j]] = do.call(contrast_builder, c(list(X = left_Xlist[[j]],
-                                                           Y = left_Ylist[[j]],
-                                                           ori_Trt = left_Trtlist[[j]],
-                                                           P = left_Plist[[j]],
+      left_Conlist <- do.call(contrast_builder_joint, c(list(Xlist = left_Xlist,
+                                                             Ylist = left_Ylist,
+                                                             ori_Trtlist = left_Trtlist,
+                                                             Plist = left_Plist,
+                                                             type = typelist[[1]]),
+                                                        contrast_builder_control))
+    } else
+    {
+
+      for (j in 1:q)
+      {
+
+        cv_Conlist[[j]] = do.call(contrast_builder, c(list(X = cv_Xlist[[j]],
+                                                           Y = cv_Ylist[[j]],
+                                                           ori_Trt = cv_Trtlist[[j]],
+                                                           P = cv_Plist[[j]],
                                                            type = typelist[[j]]),
                                                       contrast_builder_control))
+
+        left_Conlist[[j]] = do.call(contrast_builder, c(list(X = left_Xlist[[j]],
+                                                             Y = left_Ylist[[j]],
+                                                             ori_Trt = left_Trtlist[[j]],
+                                                             P = left_Plist[[j]],
+                                                             type = typelist[[j]]),
+                                                        contrast_builder_control))
+      }
     }
 
     cv_standardized_data = contrast_standardize(Conlist = cv_Conlist, Xlist = cv_Xlist, single_rule = single_rule)

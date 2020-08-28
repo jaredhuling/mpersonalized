@@ -50,10 +50,12 @@ contrast_builder = function(X, Y, ori_Trt, P, eff_aug = TRUE,
       Trteff1 = predict(glmmod, newdat1, type = "response")
     } else if (response_model == "randomForest")
     {
-      dat = data.frame(y = Y, x = X, Trt = as.character(Trt))
+
       if (type == "continuous")
       {
-        rfmod = randomForest(y ~ ., data = dat, family = gaussian())
+        dat = data.frame(y = Y, x = X, Trt = as.character(Trt))
+
+        rfmod = randomForest(y ~ ., data = dat)
         prd_type <- "response"
 
         Trt_levels <- sort(unique(Trt))
@@ -67,8 +69,9 @@ contrast_builder = function(X, Y, ori_Trt, P, eff_aug = TRUE,
 
       if (type == "binary")
       {
+        dat = data.frame(y = as.factor(Y), x = X, Trt = as.character(Trt))
         prd_type <- "prob"
-        rfmod = randomForest(y ~ ., data = dat, family = binomial())
+        rfmod = randomForest(y ~ ., data = dat)
 
         Trt_levels <- sort(unique(Trt))
 
@@ -92,4 +95,107 @@ contrast_builder = function(X, Y, ori_Trt, P, eff_aug = TRUE,
   }
 
   return(est_cont)
+}
+
+
+
+
+
+contrast_builder_joint = function(Xlist, Ylist, ori_Trtlist, Plist,
+                                  eff_aug = TRUE,
+                                  response_model = c("SGL+SL"),
+                                  type = c("continuous", "binary"),
+                                  contrast_builder_folds = 10)
+{
+
+
+  type = match.arg(type)
+  response_model = match.arg(response_model)
+
+  Trtlist <- lapply(ori_Trtlist, function(ori_Trt) 2 * (ori_Trt - 0.5))
+
+  q <- length(Xlist)
+
+
+
+  if (eff_aug == TRUE)
+  {
+
+    CbXlist <- CbX0list <- CbX1list <- vector(mode = "list", length = q)
+
+    for (s in 1:q)
+    {
+      IntX <- sweep(Xlist[[s]], 1, Trtlist[[s]], '*')
+      CbXlist[[s]]  <- cbind(Xlist[[s]], Trtlist[[s]], IntX)
+
+      n = dim(Xlist[[s]])[1]; p = dim(Xlist[[s]])[2]
+
+      CbX0list[[s]] = cbind(Xlist[[s]], rep(-1, n), -Xlist[[s]])
+      CbX1list[[s]] = cbind(Xlist[[s]], rep(1, n),   Xlist[[s]])
+    }
+
+
+
+
+    if (response_model == "SGL+SL")
+    {
+      if (type == "continuous")
+      {
+        sgmod = fit_sparse_group_fused_lasso_cv(modelYlist = Ylist,
+                                                modelXlist = CbXlist, type = "linear",
+                                                cv_folds = contrast_builder_folds, nlambda = 25)
+
+        Trteff0list <- Trteff1list <- vector(mode = "list", length = q)
+
+        for (s in 1:q)
+        {
+          intercept_s <- sgmod$intercept[s]
+          beta_s      <- sgmod$beta[s,]
+
+          Trteff0list[[s]] <- intercept_s + drop(CbX0list[[s]] %*% beta_s)
+          Trteff1list[[s]] <- intercept_s + drop(CbX1list[[s]] %*% beta_s)
+        }
+
+      } else if (type == "binary")
+      {
+        sgmod = fit_sparse_group_fused_lasso_cv(modelYlist = Ylist,
+                                                modelXlist = CbXlist, type = "logit",
+                                                cv_folds = contrast_builder_folds, nlambda = 25)
+
+        Trteff0list <- Trteff1list <- vector(mode = "list", length = q)
+
+        for (s in 1:q)
+        {
+          intercept_s <- sgmod$intercept[s]
+          beta_s      <- sgmod$beta[s,]
+
+          xbeta0 <- intercept_s + drop(CbX0list[[s]] %*% beta_s)
+          xbeta1 <- intercept_s + drop(CbX1list[[s]] %*% beta_s)
+
+          Trteff0list[[s]] <- 1 / (1 + exp(-xbeta0))
+          Trteff1list[[s]] <- 1 / (1 + exp(-xbeta1))
+        }
+
+      }
+    }
+
+    est_cont_list <- vector(mode= "list", length = q)
+    for (s in 1:q)
+    {
+      Y_adj = Ylist[[s]] - (1 - Plist[[s]]) * Trteff1list[[s]] - Plist[[s]] * Trteff0list[[s]]
+
+      est_cont_list[[s]] = ori_Trtlist[[s]] * Y_adj / Plist[[s]] - (1 - ori_Trtlist[[s]]) * Y_adj / (1 - Plist[[s]])
+    }
+
+  } else { ## if no augmentation:
+
+    #est_cont = ori_Trt * Y / P - (1 - ori_Trt) * Y / (1 - P)
+    est_cont_list <- vector(mode= "list", length = q)
+    for (s in 1:q)
+    {
+      est_cont_list[[s]] <- ori_Trtlist[[s]] * Ylist[[s]] / Plist[[s]] - (1 - ori_Trtlist[[s]]) * Ylist[[s]] / (1 - Plist[[s]])
+    }
+  }
+
+  return(est_cont_list)
 }
